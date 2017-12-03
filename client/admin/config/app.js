@@ -33,7 +33,9 @@ const config = {
         }
     },
     // 环境相关配置
-    env: process.env
+    env: process.env,
+    // 超级管理员角色名
+    superRole: 'admin'
 }
 
 Vue.prototype.$conf = config
