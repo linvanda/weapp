@@ -7,11 +7,9 @@ import http from '@/lib/http'
  */
 export function login(account, password, autoLogin) {
     return http.post('session', {
-        params: {
-            account,
-			password,
-			auto_login: autoLogin
-        }
+        account,
+        password,
+        auto_login: autoLogin
     })
 }
 

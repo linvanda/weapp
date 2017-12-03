@@ -4,7 +4,7 @@ if (process.env.NODE_ENV === 'development') {
     require('@/mock')
 }
 
-const http = axios.create({
+export const http = axios.create({
     baseURL: process.env.API_URL,
     timeout: 5000
 })
@@ -61,4 +61,21 @@ http.interceptors.response.use(
     }
 )
 
-export default http
+// 包装一层，统一 catch
+const methods = ['get', 'post', 'put', 'patch', 'delete']
+let api = {}
+
+methods.forEach(method => {
+    api[method] = (url, data, config) => {
+        return new Promise((resolve) => {
+            http[method](url, data, config).then((data) => {
+                // 响应拦截器中已经过滤了失败情况，此处仅考虑成功情况
+                resolve(data)
+            }).catch((error) => {
+                console.log('api error:', error)
+            })
+        })
+    }
+});
+
+export default api
