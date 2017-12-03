@@ -1,63 +1,39 @@
 <template>
-	<div class="app-wrapper" :class="{hideSidebar:!sidebar.opened}">
-		<sidebar class="sidebar-container"></sidebar>
-		<div class="main-container">
-			<navbar></navbar>
-			<app-main></app-main>
-		</div>
-	</div>
+	<el-container>
+		<x-aside>aside</x-aside>
+		<el-container>
+			<el-header style="height: 80px;">
+				<el-breadcrumb separator=">">
+					<el-breadcrumb-item :go="{name:'home'}">首页</el-breadcrumb-item>
+					<el-breadcrumb-item>管理中心</el-breadcrumb-item>
+					<el-breadcrumb-item>密码管理</el-breadcrumb-item>
+				</el-breadcrumb>
+			</el-header>
+			<el-main>
+				<router-view></router-view>
+			</el-main>
+		</el-container>
+	</el-container>
 </template>
 
 <script>
-import { Navbar, Sidebar, AppMain } from '@/views/layout'
+import XAside from './aside'
 
 export default {
-  name: 'layout',
-  components: {
-    Navbar,
-    Sidebar,
-    AppMain
-  },
-  computed: {
-    sidebar() {
-      return this.$store.state.app.sidebar
+    components: {
+        XAside
     }
-  }
 }
 </script>
 
 <style lang="scss" scoped>
-	@import "src/styles/mixin.scss";
-	.app-wrapper {
-		@include clearfix;
-		position: relative;
-		height: 100%;
-		width: 100%;
-		&.hideSidebar {
-			.sidebar-container{
-				width:36px;
-				overflow: inherit;
-			}
-			.main-container {
-				margin-left: 36px;
-			}
-		}
-		.sidebar-container {
-			transition: width 0.28s ease-out;
-			width: 180px;
-			height: 100%;
-			position: fixed;
-			top: 0;
-			bottom: 0;
-			left: 0;
-			z-index: 1001;
-			overflow-y: auto;
- 			&::-webkit-scrollbar {display:none}
-		}
-		.main-container {
-			min-height: 100%;
-			transition: margin-left 0.28s ease-out;
-			margin-left: 180px;
-		}
-	}
+@import 'src/styles/variable.scss';
+
+.el-header {
+    border-bottom:1px solid $light-gray;
+    .el-breadcrumb {
+        height: 100%;
+        line-height: 80px;
+    }
+}
 </style>

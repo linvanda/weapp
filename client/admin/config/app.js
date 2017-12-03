@@ -1,7 +1,7 @@
 import Vue from 'vue'
 
 /**
- * 环境无关的、应用程序使用的配置
+ * 应用程序配置
  */
 const config = {
     // 服务器端 api 响应码
@@ -13,7 +13,7 @@ const config = {
     // 登录后到默认转向路由
     loginRedirectUrl: '/dashboard',
     // 默认主题
-    defaultTheme: 'purple',
+    defaultTheme: 'blue',
     // 主题定义
     theme: {
         blue: {

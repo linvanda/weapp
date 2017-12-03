@@ -1,6 +1,6 @@
 <template>
   <div>
-      dashboard
+      neirog
   </div>
 </template>
 
