@@ -16,11 +16,8 @@ export default {
             persist.set('token', token)
             state.token = token
         },
-        SET_USERINFO(state, { id, name, account, email }) {
-            state.id = id
-            state.name = name
-            state.account = account
-            state.email = email
+        SET_USERINFO(state, user) {
+            Object.assign(state, user)
         }
     },
     actions: {

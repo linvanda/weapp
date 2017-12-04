@@ -29,6 +29,14 @@ export function empty(val, strict = false) {
     if (strict && (val === 0 || val === false)) {
         return false
     }
-    
+
     return !val || JSON.stringify(val) === '{}' || (val instanceof Array && !val.length)
+}
+
+/**
+ * 用户是否超级管理员
+ * @param {object} user 
+ */
+export function isAdmin(user) {
+    return (user.roles || []).indexOf(global.$conf.superRole) !== -1
 }

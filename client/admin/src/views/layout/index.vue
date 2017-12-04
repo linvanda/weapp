@@ -4,9 +4,7 @@
 		<el-container>
 			<el-header style="height: 80px;">
 				<el-breadcrumb separator=">">
-					<el-breadcrumb-item :go="{name:'home'}">首页</el-breadcrumb-item>
-					<el-breadcrumb-item>管理中心</el-breadcrumb-item>
-					<el-breadcrumb-item>密码管理</el-breadcrumb-item>
+					<el-breadcrumb-item v-for="bread in breadcrumb" :to="bread.path" :key="bread.path">{{ bread.title }}</el-breadcrumb-item>
 				</el-breadcrumb>
 			</el-header>
 			<el-main>
@@ -18,16 +16,33 @@
 
 <script>
 import XAside from './aside'
+import { routeTitles } from '@/lib/menu'
 
 export default {
     components: {
         XAside
-	},
-	data() {
-		return {
-			
-		}
-	}
+    },
+    data() {
+        return {
+            routeTitles: routeTitles()
+        }
+    },
+    computed: {
+        breadcrumb() {
+            let matched = this.$route.matched
+                .filter(item => item.name && this.routeTitles[item.name])
+                .map(item => {
+                    item['title'] = this.routeTitles[item.name]
+                    return item
+                })
+
+            if (!matched.length || matched[0].name !== 'home') {
+                matched = [{ title: '首页', path: '/' }].concat(matched)
+            }
+
+            return matched
+        }
+    }
 }
 </script>
 
@@ -35,7 +50,7 @@ export default {
 @import 'src/styles/variable.scss';
 
 .el-header {
-    border-bottom:1px solid $light-gray;
+    border-bottom: 1px solid $light-gray;
     .el-breadcrumb {
         height: 100%;
         line-height: 80px;

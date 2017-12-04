@@ -8,7 +8,11 @@ const _import = require('./_import_' + process.env.NODE_ENV).default
 Vue.use(Router)
 
 /**
- * 菜单节点下面的非叶子节点不允许出现非菜单节点
+ * 除了登录、错误页面，其他路由都必须配置 title，用于正确显示菜单和面包屑
+ * meta信息：
+ *      auth: 是否需要登录，默认 true
+ *      roles: 该路由需要的角色之一
+ *      actions: 该路由需要的功能点之一。actions 和 roles 是“或”的关系
  */
 export const routes = [
         {
@@ -23,7 +27,7 @@ export const routes = [
         {
             path: '/',
             name: 'home',
-            title: '首页',
+            title: '面板',
             redirect: '/dashboard',
             component: Layout,
             // 菜单栏图标
@@ -34,8 +38,6 @@ export const routes = [
                 {
                     path: 'dashboard',
                     name: 'dashboard',
-                    title: '面板',
-                    isMenu: true,
                     component: _import('dashboard/index')
                 }
             ]

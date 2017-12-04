@@ -1,5 +1,6 @@
 import { routes } from '@/router'
-import { hasAny, empty } from '@/lib/util'
+import { hasAny, empty, isAdmin } from '@/lib/util'
+import path from 'path'
 
 /**
  * 根据用户拥有的角色和权限获取需要展示的菜单。
@@ -11,7 +12,7 @@ import { hasAny, empty } from '@/lib/util'
  * - 没有配置 roles 和 actions 的路由视为无需权限校验
  * @param {object} user 
  */
-export default (user) => {
+function getMenusByUser(user) {
     if (!user || !user.id) {
         return []
     }
@@ -19,7 +20,7 @@ export default (user) => {
     return getPermitedMenu(routes, user)
 }
 
-function getPermitedMenu(routes, user) {
+function getPermitedMenu(routes, user, basePath = '') {
     if (empty(routes)) {
         return []
     }
@@ -35,7 +36,7 @@ function getPermitedMenu(routes, user) {
             let ok = true
             let childrenMenus = null
             if (route.children) {
-                childrenMenus = getPermitedMenu(route.children, user)
+                childrenMenus = getPermitedMenu(route.children, user, path.join(basePath, route.path))
 
                 // 当子菜单返回空时，需要根据情况决定是否显示父菜单：
                 // 如果子菜单中有任何一个路由有权限，则仍然需要显示父菜单
@@ -46,7 +47,7 @@ function getPermitedMenu(routes, user) {
 
             if (ok) {
                 let item = {
-                    path: route.path,
+                    path: path.join(basePath, route.path),
                     title: route.title || route.name || '',
                     icon: route.icon || ''
                 }
@@ -122,6 +123,42 @@ function hasGrandSun(children) {
     return false
 }
 
-function isAdmin(user) {
-    return (user.roles || []).indexOf(global.$conf.superRole) !== -1
+export default getMenusByUser
+
+/**
+ * 菜单的 index （完整 path）
+ * @param {array} menus 
+ */
+export function menuIndex(menus) {
+    let indexes = []
+
+    menus.forEach(menu => {
+        indexes.push(menu.path)
+
+        if (!empty(menu.children)) {
+            indexes = indexes.concat(menuIndex(menu.children))
+        }
+    })
+
+    return indexes
+}
+
+/**
+ * 路由的 title 信息
+ */
+export function routeTitles(_routes) {
+    _routes = _routes || routes
+    let titles = {}
+
+    _routes.forEach(route => {
+        if (route.name && route.title) {
+            titles[route.name] = route.title
+
+            if (!empty(route.children)) {
+                Object.assign(titles, routeTitles(route.children))
+            }
+        }
+    })
+
+    return titles
 }
