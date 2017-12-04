@@ -9,6 +9,9 @@ export default {
     component: Layout,
     isMenu: true,
     children: [
+        /**
+         * 超级管理员可以管理所有账号，其他角色只能管理自己的账号（无法删除）
+         */
         {
             path: 'accounts',
             name: 'accounts',
@@ -24,11 +27,18 @@ export default {
                     component: _import('accounts/list')
                 },
                 {
-                    path: 'detail/:id',
+                    path: ':id',
                     name: 'account-detail',
                     title: '账号详情',
                     props: true,
                     component: _import('accounts/detail')
+                },
+                {
+                    path: ':id/password',
+                    name: 'account-password',
+                    title: '密码管理',
+                    props: true,
+                    component: _import('accounts/password')
                 }
             ]
         }

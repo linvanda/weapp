@@ -11,5 +11,8 @@ export default {
     logined(state) {
         const token = state.user.token
         return !!(token && token.value && token.expire && new Date(token.expire.split(' ')[0]) > new Date())
+    },
+    user(state) {
+        return state.user
     }
 }

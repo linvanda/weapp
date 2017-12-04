@@ -22,7 +22,12 @@ import XAside from './aside'
 export default {
     components: {
         XAside
-    }
+	},
+	data() {
+		return {
+			
+		}
+	}
 }
 </script>
 

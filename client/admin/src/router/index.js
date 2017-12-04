@@ -7,8 +7,10 @@ const _import = require('./_import_' + process.env.NODE_ENV).default
 
 Vue.use(Router)
 
-const router = new Router({
-    routes: [
+/**
+ * 菜单节点下面的非叶子节点不允许出现非菜单节点
+ */
+export const routes = [
         {
             path: '/login',
             name: 'login',
@@ -60,6 +62,5 @@ const router = new Router({
             redirect: '/404'
         }
     ]
-})
 
-export default router
+export default new Router({ routes })

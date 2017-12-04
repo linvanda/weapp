@@ -1,4 +1,5 @@
-import router from '@/router'
+import { routes } from '@/router'
+import { hasAny, empty } from '@/lib/util'
 
 /**
  * 根据用户拥有的角色和权限获取需要展示的菜单。
@@ -10,16 +11,16 @@ import router from '@/router'
  * - 没有配置 roles 和 actions 的路由视为无需权限校验
  * @param {object} user 
  */
-export function getMenusByUser(user) {
-    if (!user || !user.id || !user.roles || !user.roles.length) {
+export default (user) => {
+    if (!user || !user.id) {
         return []
     }
 
-    return getPermitedMenu(router.routes, user)
+    return getPermitedMenu(routes, user)
 }
 
 function getPermitedMenu(routes, user) {
-    if (!routes || !routes.length || routes.isMenu !== true) {
+    if (empty(routes)) {
         return []
     }
 
@@ -38,7 +39,7 @@ function getPermitedMenu(routes, user) {
 
                 // 当子菜单返回空时，需要根据情况决定是否显示父菜单：
                 // 如果子菜单中有任何一个路由有权限，则仍然需要显示父菜单
-                if (!childrenMenus.length && !hasAnyPermitedRoute(route.children, user)) {
+                if (!childrenMenus.length && (hasGrandSun(route.children) || !hasAnyPermitedRoute(route.children, user))) {
                     ok = false
                 }
             }
@@ -46,7 +47,7 @@ function getPermitedMenu(routes, user) {
             if (ok) {
                 let item = {
                     path: route.path,
-                    title: route.title || route.name,
+                    title: route.title || route.name || '',
                     icon: route.icon || ''
                 }
 
@@ -67,6 +68,7 @@ function getPermitedMenu(routes, user) {
  * @param {object} user 
  */
 function valid(meta, user) {
+    meta = meta || {}
     const needRoles = meta.roles || []
     const needActions = meta.actions || []
     const userRoles = user.roles || []
@@ -80,22 +82,7 @@ function valid(meta, user) {
         return false
     }
 
-    return hasAny(needRoles, userRoles) && hasAny(needActions, userActions)
-}
-
-/**
- * sources 中是否有任何符合 needs要求的
- * @param {array} needs 
- * @param {array} sources 
- */
-function hasAny(needs, sources) {
-    for (const need of needs) {
-        if (sources.indexOf(need) !== -1) {
-            return true
-        }
-    }
-
-    return false
+    return hasAny(userRoles, needRoles) || hasAny(userActions, needActions)
 }
 
 /**
@@ -117,10 +104,24 @@ function hasAnyPermitedRoute(routes, user) {
     return false
 }
 
-function isAdmin(user) {
-    user.roles.indexOf(global.$conf.superRole) !== -1
+/**
+ * 是否有孙节点
+ * @param {array} children 
+ */
+function hasGrandSun(children) {
+    if (empty(children)) {
+        return false
+    } 
+
+    for (const item of children) {
+        if (!empty(item.children)) {
+            return true
+        }
+    }
+
+    return false
 }
 
-function empty(val) {
-    return !val || !val.length
+function isAdmin(user) {
+    return (user.roles || []).indexOf(global.$conf.superRole) !== -1
 }

@@ -4,6 +4,7 @@
 import store from '@/store'
 import * as loginApi from '@/api/session'
 import router from '@/router'
+import { hasAny } from '@/lib/util'
 
 /**
  * 登录
@@ -57,24 +58,5 @@ export function checkPermission(user, roles, actions) {
         return false
     }
 
-    const userRoles = user.roles
-    const userActions = user.actions
-    let roleOk = !roles.length
-    let actionOk = !actions.length
-
-    for (const role of roles) {
-        if (userRoles.indexOf(role) !== -1) {
-            roleOk = true
-            break
-        }
-    }
-
-    for (const action of actions) {
-        if (userActions.indexOf(action) !== -1) {
-            actionOk = true
-            break
-        }
-    }
-
-    return roleOk && actionOk
+    return hasAny(user.roles, roles) || hasAny(user.actions, actions)
 }
