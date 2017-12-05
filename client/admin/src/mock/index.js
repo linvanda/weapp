@@ -25,7 +25,7 @@ Mock.mock(/session\/[-0-9a-z]+(\?.*)?$/, 'get', {
         name: '@cname',
         account: 'lin@123.com',
         email: '@email',
-        roles: ['admin']
+        roles: ['editor']
     }
 })
 

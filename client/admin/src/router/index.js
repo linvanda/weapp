@@ -31,7 +31,7 @@ export const routes = [
             redirect: '/dashboard',
             component: Layout,
             // 菜单栏图标
-            icon: 'home',
+            icon: 'fa fa-home',
             // 是否菜单栏项目。默认不是。菜单栏路由必须设置 title 或 name 属性，优先使用 title
             isMenu: true,
             children: [

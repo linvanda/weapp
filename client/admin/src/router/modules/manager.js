@@ -9,6 +9,7 @@ export default {
     redirect: '/manager/accounts/list',
     component: Layout,
     isMenu: true,
+    icon: 'fa fa-cog',
     children: [
         /**
          * 超级管理员可以管理所有账号，其他角色只能管理自己的账号（无法删除）
@@ -50,6 +51,9 @@ export default {
             isMenu: true,
             component: wrapper,
             redirect: { name: 'role-list' },
+            meta: {
+                roles: ['admin']
+            },
             children: [
                 {
                     path: 'list',
@@ -58,6 +62,23 @@ export default {
                     component: _import('permission/role-list')
                 }
             ]
+        },
+        {
+            path: 'setting',
+            name: 'setting',
+            title: '系统设置',
+            isMenu: true,
+            component: _import('setting/index')
+        },
+        {
+            path: 'log',
+            name: 'log',
+            title: '操作日志',
+            isMenu: true,
+            component: _import('log/index'),
+            meta: {
+                roles: ['admin']
+            }
         }
     ]
 }
