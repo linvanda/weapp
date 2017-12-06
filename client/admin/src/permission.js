@@ -5,7 +5,7 @@
  import router from '@/router'
  import store from '@/store'
  import { frontLogout, checkPermission } from '@/lib/auth'
- import { loginerInfo } from '@/api/session'
+ import API from '@/api'
 
  router.beforeEach((to, from, next) => {
     const meta = to.meta
@@ -16,7 +16,7 @@
             frontLogout()
         } else {
             // 获取用户信息
-            loginerInfo(store.getters.token).then((data) => {
+            API.invoke('session.loginerInfo', store.getters.token).then((data) => {
                 store.commit('SET_USERINFO', data.data)
 
                 // 权限检查

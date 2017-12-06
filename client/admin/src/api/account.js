@@ -1,25 +1,6 @@
 /**
  * 账号相关 api
  */
-// import http from '@/lib/http'
-
-/**
- * 获取账号信息
- */
-// export function info(userId) {
-//     return http.get(`users/${userId}`)
-// }
-// console.log(module)
-// /**
-//  * 账号列表
-//  * @param {number} page 
-//  * @param {number} pageSize 
-//  * @param {object} filters 
-//  */
-// export function list(page = 1, pageSize = 20, filters = {}) {
-//     return http.get('users', Object.assign({ page, pageSize }, filters))
-// }
-
 export default {
     // 用户列表
     list: {

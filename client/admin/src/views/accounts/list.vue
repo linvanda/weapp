@@ -28,7 +28,6 @@
 </template>
 
 <script>
-// import { list as accountList } from '@/api/account'
 import API from '@/api'
 
 export default {
@@ -42,7 +41,11 @@ export default {
     },
     methods: {
         fetchData() {
-            API.loading().invoke('account.list', this.currentPage, this.pageSize, {}).then(result => {
+            API.loading().invoke('account.list', {
+                page: this.currentPage, 
+                pageSize: this.pageSize, 
+                filters: {}
+            }).then(result => {
                 this.list = result.data.data
                 this.total = result.data.total
             })

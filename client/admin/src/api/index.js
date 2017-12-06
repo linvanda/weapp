@@ -1,11 +1,6 @@
-import { Message } from 'element-ui'
-import { isType, matchAll } from '@/lib/util'
+import { Message, MessageBox } from 'element-ui'
+import { empty, isType, matchAll } from '@/lib/util'
 import http from '@/lib/http'
-
-/**
- * api 调用的统一入口
- */
-let api = {}
 
 /**
  * 配置处理
@@ -33,6 +28,8 @@ function normalizeConfig(apiConfig) {
                 val.type || (val.type = [String, Number])
                 val.required || (val.required = false)
             }
+
+            apiConfig['data'][key] = val
         })
     }
 
@@ -100,18 +97,126 @@ function normalizeUrl(url, data) {
     matches.forEach(flag => {
         const key = flag.slice(1)
 
-        isType(data[key], [String, Number]) && 
-        (url = url.replace(url, data[key])) && 
-        delete data[key]
+        isType(data[key], [String, Number]) &&
+            (url = url.replace(flag, data[key])) &&
+            delete data[key]
     })
 
     return [url, data]
+}
+
+/**
+ * 将驼峰式 key 转换为 _
+ * @param {object} data
+ */
+function transDataIndex(data) {
+    if (empty(data)) {
+        return data
+    }
+
+    let result = {}
+
+    Object.keys(data).forEach(key => {
+        let newKey = []
+        for (const c of key) {
+            newKey.push(c >= 'A' && c <= 'Z' ? '_' + c.toLowerCase() : c)
+        }
+        newKey = newKey.join('')
+        result[newKey] = data[key]
+    })
+
+    return result
+}
+
+/**
+ * 发起请求
+ * @param {String} url
+ * @param {String} method
+ * @param {Object} data
+ * @param {Object} config
+ */
+function request(url, method, data, config) {
+    const store = require('@/store').default
+    let loadingFlag = api.loadingFlag
+
+    // 设置 loading 状态
+    console.log('==')
+    if (loadingFlag) {
+        console.log('0-0-')
+        store.commit('START_LOADING', loadingFlag)
+        config['x-loading'] = loadingFlag
+        api.loadingFlag = null
+    }
+
+    return new Promise(resolve => {
+        let conf = {
+            url,
+            method
+        }
+
+        if (method === 'get' || method === 'delete') {
+            conf['params'] = data
+        } else {
+            conf['data'] = data
+        }
+
+        Object.assign(conf, config)
+        
+        http(conf)
+            .then(response => {
+                const data = response.data
+                const code = global.$conf.code
+                const httpCode = response.code
+                const config = response.config
+
+                if (httpCode < 200 || httpCode >= 300 || data.constructor !== Object || !data.code) {
+                    return Promise.reject(Object.assign(response, { 'errorMsg': '服务器响应失败' }))
+                }
+
+                /**
+                 * 应用层通用错误的处理
+                 */
+                if (data.code !== code.OK) {
+                    if (data.code === code.NO_LOGIN) {
+                        // 未登录
+                        MessageBox.alert('您尚未登录或登录已过期，请重新登录', {
+                            callback: () => {
+                                require('@/lib/auth').frontLogout()
+                            }
+                        })
+                    } else if (data.code === code.NO_PERMISSION) {
+                        // 未授权
+                        MessageBox.alert(data.msg || '您没有权限进行此项操作')
+                    } else {
+                        MessageBox.alert(data.msg || '抱歉，本次操作失败')
+                    }
+
+                    return Promise.reject(Object.assign(response, { 'errorMsg': data.msg || '操作失败' }))
+                }
+
+                // 停止 loading
+                config['x-loading'] && config['x-loading'] === loadingFlag && store.commit('STOP_LOADING')
+
+                resolve(response.data)
+            })
+            .catch(response => {
+                // 停止 loading
+                const config = response.config
+                config['x-loading'] && config['x-loading'] === loadingFlag && store.commit('STOP_LOADING')
+                console.log('api error:', response)
+            })
+    })
 }
 
 function error(apiMsg, msg = '接口调用错误') {
     Message.error(msg)
     return Promise.reject(apiMsg)
 }
+
+/**
+ * api 调用的统一入口
+ */
+let api = { loadingFlag: null }
 
 /**
  * 统一调用入口
@@ -126,9 +231,9 @@ api.invoke = function(apiName, params, config = {}) {
 
     try {
         // 模块加载
-        apiModule = require('./' + apiArr.slice(0, len - 1).join('/'))
-    } catch (error) {
-        return error(`no api module:${apiName}`)
+        apiModule = require('./' + apiArr.slice(0, len - 1).join('/')).default
+    } catch (e) {
+        return error(`no api module:${apiName}.error:${e}`)
     }
 
     let apiConfig = apiModule[apiArr[len - 1]]
@@ -140,8 +245,8 @@ api.invoke = function(apiName, params, config = {}) {
     try {
         // 配置处理
         apiConfig = normalizeConfig(apiConfig)
-    } catch (error) {
-        return error(`config error: ${error}`)
+    } catch (e) {
+        return error(`config error: ${e}`)
     }
 
     if (!apiConfig.url) {
@@ -151,30 +256,32 @@ api.invoke = function(apiName, params, config = {}) {
     // 参数处理
     try {
         params = normalizeParams(params, apiConfig.data)
-    } catch (error) {
+    } catch (e) {
         return error(
-            `params format error:${apiName}. params:${JSON.stringify(
-                params
-            )}. error: ${error}`
+            `params format error:${apiName}.error: ${e}`
         )
     }
 
     // url 处理
+     let url
+     let data
     try {
-        const [url, data] = normalizeUrl(apiConfig.url, params)
-
-        // 发起请求
-        return http[apiConfig.method](url, data, config)
-    } catch (error) {
-        return error(`url error.url:${apiConfig.url}.error:${error}`)
+        [url, data] = normalizeUrl(apiConfig.url, params)
+    } catch (e) {
+        return error(`url error.url:${apiConfig.url}.error:${e}`)
     }
+
+    // 发起请求
+    return request(url, apiConfig.method, transDataIndex(data), config)
 }
 
 /**
  * 打开 loading 闸口
  */
 api.loading = function() {
-    require('@/store').default.commit('SHOULD_LOADING', true)
+    if (!require('@/store').default.state.loading) {
+        this.loadingFlag = parseInt(Math.random() * 10000, 10)
+    }
 
     return this
 }

@@ -1,8 +1,8 @@
 /**
- * qu
+ * 登录授权相关
  */
 import store from '@/store'
-import * as loginApi from '@/api/session'
+import API from '@/api'
 import router from '@/router'
 import { hasAny } from '@/lib/util'
 
@@ -12,7 +12,7 @@ import { hasAny } from '@/lib/util'
  * @param {string} password 
  */
 export function login(account, password, autoLogin) {
-    return loginApi.login(account, password, autoLogin).then((data) => {
+    return API.invoke('session.login', { account, password, autoLogin }).then((data) => {
         store.dispatch('Login', { token: data.data.token })
         
         // 跳转到相关页面
@@ -24,7 +24,7 @@ export function login(account, password, autoLogin) {
  * 退出登录
  */
 export function logout() {
-    return loginApi.logout().then(() => frontLogout())
+    return API.invoke('session.logout').then(() => frontLogout())
 }
 
 /**

@@ -8,7 +8,6 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
     state: {
-        shouldLoading: false,
         loading: false
     },
     modules: {
@@ -17,17 +16,11 @@ export default new Vuex.Store({
     },
     getters,
     mutations: {
-        START_LOADING(state) {
-            if (state.shouldLoading) {
-                state.loading = true
-            }
+        START_LOADING(state, val) {
+            state.loading = val
         },
-        END_LOADING(state) {
-            state.shouldLoading = false
+        STOP_LOADING(state) {
             state.loading = false
-        },
-        SHOULD_LOADING(state, flag) {
-            state.shouldLoading = flag
         }
     }
 })
