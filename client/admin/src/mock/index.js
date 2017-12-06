@@ -2,8 +2,13 @@
  * 模拟 api 数据
  */
 import Mock from 'mockjs'
+import URI from 'urijs'
 
-Mock.mock(/users\/[-0-9a-z]+(\?.*)?$/, 'get', (options) => {
+Mock.setup({
+    timeout: 1000
+})
+
+Mock.mock(/users\/[-0-9a-z]+(\?.*)?$/, 'get', options => {
     const urlArr = options.url.split('/')
     return {
         code: 1000,
@@ -25,14 +30,14 @@ Mock.mock(/session\/[-0-9a-z]+(\?.*)?$/, 'get', {
         name: '@cname',
         account: 'lin@123.com',
         email: '@email',
-        roles: ['editor']
+        roles: ['admin']
     }
 })
 
 /**
  * 登录
  */
-Mock.mock(/session$/, 'post', (options) => {
+Mock.mock(/session$/, 'post', options => {
     const data = JSON.parse(options.body).params
 
     if (data['account'] !== 'linvanda' || data['password'] !== '123') {
@@ -53,3 +58,34 @@ Mock.mock(/session$/, 'post', (options) => {
         }
     }
 })
+
+/**
+ * 账号列表
+ */
+Mock.mock(/users(\?.*)?$/, 'get', (options) => {
+    let users = []
+    const params = URI.parseQuery(options.url.split('?')[1])
+    console.log(params)
+
+    for (let i = 0; i < params['page_size']; i++) {
+        users.push(
+            Mock.mock({
+                'id': '@string(32)',
+                name: '@cname',
+                account: '@string(8)',
+                email: '@email',
+                mobile: /13[0-9]{9}/,
+                'roles|1': ['admin', 'editor']
+            })
+        )
+    }
+
+    return {
+        code: 1000,
+        data: {
+            total: 1200,
+            data: users
+        }
+    }
+})
+

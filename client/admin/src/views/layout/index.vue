@@ -7,7 +7,7 @@
 					<el-breadcrumb-item v-for="bread in breadcrumb" :to="bread.path" :key="bread.path">{{ bread.title }}</el-breadcrumb-item>
 				</el-breadcrumb>
 			</el-header>
-			<el-main>
+			<el-main style="padding:40px;">
 				<router-view></router-view>
 			</el-main>
 		</el-container>

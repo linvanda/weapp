@@ -23,4 +23,7 @@ body {
 		line-height: 40px;
 	}
 }
+#app{
+	padding-bottom: 80px;
+}
 </style>

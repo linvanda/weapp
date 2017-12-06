@@ -40,3 +40,52 @@ export function empty(val, strict = false) {
 export function isAdmin(user) {
     return (user.roles || []).indexOf(global.$conf.superRole) !== -1
 }
+
+/**
+ * 类型判断
+ * 注意，此判断是依据构造函数进行的，因而不要重写{Object}.prototype.constructor
+ * @param {object} object 
+ * @param {Function|Array} types 类型构造函数，如 Array, Object, Boolean等
+ */
+export function isType(object, types) {
+    if (types.constructor === Function) {
+        return object.constructor === types
+    }
+
+    for (const type of types) {
+        if (object.constructor === type) {
+            return true
+        }
+    }
+
+    return false
+}
+
+/**
+ * 正则全局匹配
+ * @param {RegExp} regExp 
+ * @param {String} text 
+ * @param {Number} group 
+ */
+export function matchAll(regExp, text, group = 0) {
+    if (!isType(regExp, RegExp) || !isType(text, String)) {
+        return []
+    }
+
+    let result = []
+
+    if (regExp.global) {
+        let current = null
+        while ((current = regExp.exec(text))) {
+            result.push(current)
+        }
+    } else {
+        result.push(regExp.exec(text))
+    }
+
+    if (typeof group === 'number') {
+        return result.map(item => item[group])
+    }
+
+    return result
+}

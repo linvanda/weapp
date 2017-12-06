@@ -1,228 +1,61 @@
 <template>
-	<div style="text-align:center;">
-		<div class="wscn-http404">
-			<div class="pic-404">
-				<img class="pic-404__parent" :src="img_404" alt="404">
-				<img class="pic-404__child left" :src="img_404_cloud" alt="404">
-				<img class="pic-404__child mid" :src="img_404_cloud" alt="404">
-				<img class="pic-404__child right" :src="img_404_cloud" alt="404">
-			</div>
-			<div class="bullshit">
-				<div class="bullshit__oops">OOPS!</div>
-				<div class="bullshit__headline">{{ message }}</div>
-				<div class="bullshit__info">请检查您输入的网址是否正确，请点击以下按钮返回主页或者发送错误报告</div>
-				<div>
-					<el-button type="primary"><i class="el-icon-arrow-left"></i>返回</el-button>
-					<el-button>首页<i class="el-icon-arrow-right"></i></el-button>
-				</div>
+	<div class="error">
+		<div class="error-content">
+			<h1 class="text-jumbo">Sorry!</h1>
+			<h2 class="tip">您访问的页面不存在，请检查您输入的网址是否正确</h2>
+			<div class="op">
+				<el-button @click="back" type="primary">
+					<i class="el-icon-arrow-left"></i>返回</el-button>
+				<el-button @click="$router.replace({name:'home'})">
+					去首页
+					<i class="el-icon-arrow-right"></i>
+				</el-button>
 			</div>
 		</div>
 	</div>
 </template>
 
 <script>
-import img_404 from '@/assets/404_images/404.png'
-import img_404_cloud from '@/assets/404_images/404_cloud.png'
-
 export default {
     data() {
         return {
-            img_404,
-			img_404_cloud,
-			message: '您访问的页面不存在'
+            themeColor: this.$store.state.app.theme.color
+        }
+    },
+    methods: {
+        back() {
+            if (this.$route.query.noGoBack) {
+                this.$router.push({ name: 'home' })
+            } else {
+                this.$router.go(-1)
+            }
         }
     }
 }
 </script>
 
 <style lang="scss" scoped>
-.wscn-http404 {
-	width: auto;
-	display:inline-block;
-    position: relative;
-    margin: 20px auto 60px;
-    padding: 0 140px;
-    overflow: hidden;
-    .pic-404 {
-		text-align: left;
-        position: relative;
-        float: left;
-        width: 600px;
-        padding: 150px 0;
-        overflow: hidden;
-        &__parent {
-            width: 100%;
+.error {
+	display: block;
+	text-align: center;
+    .error-content {
+		display:inline-block;
+		width:auto;
+        text-align: left;
+        padding-top: 180px;
+        .text-jumbo {
+            font-size: 6em;
+			color: #2d2f33;
+			font-weight: bold;
+            margin: 10px 0 !important;
         }
-        &__child {
-            position: absolute;
-            &.left {
-                width: 80px;
-                top: 17px;
-                left: 220px;
-                opacity: 0;
-                animation-name: cloudLeft;
-                animation-duration: 2s;
-                animation-timing-function: linear;
-                animation-fill-mode: forwards;
-                animation-delay: 1s;
-            }
-            &.mid {
-                width: 46px;
-                top: 10px;
-                left: 420px;
-                opacity: 0;
-                animation-name: cloudMid;
-                animation-duration: 2s;
-                animation-timing-function: linear;
-                animation-fill-mode: forwards;
-                animation-delay: 1.2s;
-            }
-            &.right {
-                width: 62px;
-                top: 100px;
-                left: 500px;
-                opacity: 0;
-                animation-name: cloudRight;
-                animation-duration: 2s;
-                animation-timing-function: linear;
-                animation-fill-mode: forwards;
-                animation-delay: 1s;
-            }
-            @keyframes cloudLeft {
-                0% {
-                    top: 17px;
-                    left: 220px;
-                    opacity: 0;
-                }
-                20% {
-                    top: 33px;
-                    left: 188px;
-                    opacity: 1;
-                }
-                80% {
-                    top: 81px;
-                    left: 92px;
-                    opacity: 1;
-                }
-                100% {
-                    top: 97px;
-                    left: 60px;
-                    opacity: 0;
-                }
-            }
-            @keyframes cloudMid {
-                0% {
-                    top: 10px;
-                    left: 420px;
-                    opacity: 0;
-                }
-                20% {
-                    top: 40px;
-                    left: 360px;
-                    opacity: 1;
-                }
-                70% {
-                    top: 130px;
-                    left: 180px;
-                    opacity: 1;
-                }
-                100% {
-                    top: 160px;
-                    left: 120px;
-                    opacity: 0;
-                }
-            }
-            @keyframes cloudRight {
-                0% {
-                    top: 100px;
-                    left: 500px;
-                    opacity: 0;
-                }
-                20% {
-                    top: 120px;
-                    left: 460px;
-                    opacity: 1;
-                }
-                80% {
-                    top: 180px;
-                    left: 340px;
-                    opacity: 1;
-                }
-                100% {
-                    top: 200px;
-                    left: 300px;
-                    opacity: 0;
-                }
-            }
+        .tip {
+            font-size: 1.6em;
+			color: #5a5e66;
+			font-weight: normal;
         }
-    }
-    .bullshit {
-		text-align: left;
-        position: relative;
-        float: left;
-        width: 300px;
-        padding: 220px 0 220px 20px;
-        overflow: hidden;
-        &__oops {
-            font-size: 40px;
-            font-weight: bold;
-            line-height: 40px;
-            color: #1482f0;
-            opacity: 0;
-            margin-bottom: 20px;
-            animation-name: slideUp;
-            animation-duration: 0.5s;
-            animation-fill-mode: forwards;
-        }
-        &__headline {
-            font-size: 20px;
-            line-height: 20px;
-            color: #3996fa;
-            opacity: 0;
-            margin-bottom: 10px;
-            animation-name: slideUp;
-            animation-duration: 0.5s;
-            animation-delay: 0.1s;
-            animation-fill-mode: forwards;
-        }
-        &__info {
-            font-size: 14px;
-            line-height: 21px;
-            color: grey;
-            opacity: 0;
-            margin-bottom: 30px;
-            animation-name: slideUp;
-            animation-duration: 0.5s;
-            animation-delay: 0.2s;
-            animation-fill-mode: forwards;
-        }
-        &__return-home {
-            display: block;
-            float: left;
-            width: 110px;
-            height: 36px;
-            background: #1482f0;
-            border-radius: 100px;
-            text-align: center;
-            color: #ffffff;
-            opacity: 0;
-            font-size: 14px;
-            line-height: 36px;
-            cursor: pointer;
-            animation-name: slideUp;
-            animation-duration: 0.5s;
-            animation-delay: 0.3s;
-            animation-fill-mode: forwards;
-        }
-        @keyframes slideUp {
-            0% {
-                transform: translateY(60px);
-                opacity: 0;
-            }
-            100% {
-                transform: translateY(0);
-                opacity: 1;
-            }
+        .op {
+            margin-top: 40px;
         }
     }
 }
