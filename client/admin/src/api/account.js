@@ -38,10 +38,29 @@ export default {
     info: {
         url: 'users/:userId',
         data: {
-            userId: {
-                type: String,
+            userId: true
+        }
+    },
+    // 删除用户
+    delete: {
+        url: 'users/:userId',
+        method: 'delete',
+        data: {
+            userId: true
+        }
+    },
+    // 编辑用户
+    edit: {
+        url: 'users/:userId',
+        method: 'patch',
+        data: {
+            userId: true,
+            name: true,
+            email: false,
+            mobile: false,
+            roles: {
+                type: Array,
                 required: true
             }
-        }
     }
 }

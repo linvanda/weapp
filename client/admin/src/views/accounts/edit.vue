@@ -1,0 +1,117 @@
+<template>
+    <el-row>
+        <el-col :span="12">
+            <el-form :model="user" ref="form" label-width="80px" :rules="rules" v-loading="$store.state.loading">
+                <el-form-item label="账号" prop="account">{{ user.account }}</el-form-item>
+                <el-form-item label="姓名" prop="name">
+                    <el-input v-model="user.name"></el-input>
+                </el-form-item>
+                <el-form-item label="邮箱" prop="email">
+                    <el-input v-model="user.email"></el-input>
+                </el-form-item>
+                <el-form-item label="手机" prop="mobile">
+                    <el-input v-model="user.mobile"></el-input>
+                </el-form-item>
+                <el-form-item label="角色" prop="roles">
+                    <el-checkbox-group v-model="user.roles">
+                        <el-checkbox :label="adminRole.name" :key="adminRole.name" @change="chooseAdmin">{{ adminRole.title }}</el-checkbox>
+                    </el-checkbox-group>
+                    <el-checkbox-group v-model="user.roles" :disabled="!roleCanChoose">
+                        <el-checkbox v-for="role in roleList" :label="role.name" :key="role.name">{{ role.title }}</el-checkbox>
+                    </el-checkbox-group>
+                </el-form-item>
+                <el-form-item>
+                    <el-button @click="$router.back()">返回</el-button>
+                    <el-button @click="submit('form')" type="primary">提交</el-button>
+                </el-form-item>
+            </el-form>
+        </el-col>
+    </el-row>
+</template>
+
+<script>
+import API from '@/api'
+
+export default {
+    props: {
+        id: ''
+    },
+    data() {
+        return {
+            user: {
+                account: '',
+                name: '',
+                email: '',
+                mobile: '',
+                roles: []
+            },
+            adminRole: {},
+            roleList: [],
+            rules: {
+                name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
+                email: [
+                    { type: 'email', message: '请输入正确的 email', trigger: 'blur' }
+                ],
+                roles: [
+                    { required: true, message: '请至少选择一个角色' }
+                ]
+            }
+        }
+    },
+    computed: {
+        roleCanChoose() {
+            return this.user.roles.indexOf(global.$conf.superRole) === -1
+        }
+    },
+    methods: {
+        fetchData() {
+            console.log('90d')
+            API.loading()
+                .invoke('account.info', this.id)
+                .then(user => {
+                    this.user.account = user.account
+                    this.user.name = user.name
+                    this.user.email = user.email
+                    this.user.mobile = user.mobile
+                    this.user.roles = ['admin']
+                })
+            API.invoke('permission.roles').then(roles => {
+                // 超级管理员
+                this.adminRole = roles.filter(
+                    item => item.name === global.$conf.superRole
+                )[0]
+
+                // 普通角色列表
+                this.roleList = roles.filter(
+                    item => item.name !== global.$conf.superRole
+                )
+            })
+        },
+        submit(form) {
+            console.log(this.user.roles)
+            this.$refs[form].validate(valid => {
+                if (valid) {
+                    
+                }
+            })
+        },
+        chooseAdmin(val) {
+            if (val === true) {
+                this.user.roles = [global.$conf.superRole]
+            }
+        }
+    },
+    created() {
+        this.fetchData()
+    }
+}
+</script>
+
+<style lang="scss" scoped>
+.el-form {
+    .el-checkbox {
+        margin-left: 0;
+        margin-right: 30px;
+    }
+}
+</style>

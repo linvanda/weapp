@@ -8,6 +8,8 @@ const config = {
     code: require('./code').default,
     // 持久化存储 key 前缀
     storePrefix: 'admin',
+    // api 前缀
+    apiPrefix: 'admin',
     // 退出登录后跳转向的页面路由
     logoutRedirectUrl: '/login',
     // 登录后到默认转向路由

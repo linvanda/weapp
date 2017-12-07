@@ -6,11 +6,10 @@
             <el-table-column prop="name" label="名称"></el-table-column>
             <el-table-column prop="mobile" label="手机"></el-table-column>
             <el-table-column prop="roles" label="角色"></el-table-column>
-            <el-table-column label="操作" width="300">
+            <el-table-column label="操作" width="150">
                 <template slot-scope="scope">
-                    <el-button type="info" size="mini">详情</el-button>
-                    <el-button type="primary" size="mini">编辑</el-button>
-                    <el-button type="danger" size="mini">删除</el-button>
+                    <el-button type="primary" size="mini" @click="$router.push({ name: 'account-edit', params: { id: scope.row.id } })">编辑</el-button>
+                    <el-button v-permit="['admin']" type="danger" size="mini" @click="deleteAccount(scope.row)">删除</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -45,13 +44,21 @@ export default {
                 page: this.currentPage, 
                 pageSize: this.pageSize, 
                 filters: {}
-            }).then(result => {
-                this.list = result.data.data
-                this.total = result.data.total
+            }).then(list => {
+                this.list = list.data
+                this.total = list.total
             })
         },
         pageChange() {
             this.fetchData()
+        },
+        deleteAccount(row) {
+            this.$confirm(`确定删除账号 ${row.account} 吗？`).then(() => {
+                API.loading().invoke('account.delete', row.id).then(() => {
+                    this.$message.success('删除成功')
+                    this.fetchData()
+                })
+            }).catch(() => {})
         }
     },
     created() {

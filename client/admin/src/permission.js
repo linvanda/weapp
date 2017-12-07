@@ -4,7 +4,7 @@
 
  import router from '@/router'
  import store from '@/store'
- import { frontLogout, checkPermission } from '@/lib/auth'
+ import { checkPermission } from '@/lib/auth'
  import API from '@/api'
 
  router.beforeEach((to, from, next) => {
@@ -13,15 +13,17 @@
     if (meta.auth !== false) {
         // 需要登录
         if (!store.getters.logined) {
-            frontLogout()
+            store.dispatch('FrontLogout').then(() => {
+                // 跳转到登陆页
+                location.reload()
+                router.replace(global.$conf.logoutRedirectUrl)
+            })
         } else {
             // 获取用户信息
-            API.invoke('session.loginerInfo', store.getters.token).then((data) => {
-                store.commit('SET_USERINFO', data.data)
-
+            store.dispatch('LoginerInfo').then(user => {
                 // 权限检查
                 if (meta.roles || meta.actions) {
-                    if (!checkPermission(store.state.user, meta.roles, meta.actions)) {
+                    if (!checkPermission(user, meta.roles, meta.actions)) {
                         next('/401')
                     } else {
                         next()

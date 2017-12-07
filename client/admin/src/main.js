@@ -32,12 +32,15 @@ new Vue({
         /**
          * 初始化系统个性设置
          */
-        
-        // 引入主题文件
-        const link = document.getElementById('theme-css-link')
-        link.href = this.$store.state.app.theme.path
-        link.onload = () => {
+        this.$store.dispatch('initApp').then((getters) => {
+            // 引入主题文件
+            const link = document.getElementById('theme-css-link')
+            link.href = getters.theme.path
+            link.onload = () => {
+                this.$mount('#app')
+            }
+        }).catch(() => {
             this.$mount('#app')
-        }
+        })
     }
 })

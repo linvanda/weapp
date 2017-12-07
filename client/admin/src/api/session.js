@@ -7,7 +7,7 @@ export default {
             account: true,
             password: true,
             autoLogin: {
-                type: Boolean,
+                type: Number,
                 default: false
             }
         }

@@ -30,10 +30,10 @@ export default {
                 },
                 {
                     path: ':id',
-                    name: 'account-detail',
-                    title: '账号详情',
+                    name: 'account-edit',
+                    title: '编辑账号',
                     props: true,
-                    component: _import('accounts/detail')
+                    component: _import('accounts/edit')
                 },
                 {
                     path: ':id/password',

@@ -3,7 +3,7 @@
  */
 export default {
     info: {
-        url: 'admin/setting/:userId',
+        url: 'setting/:userId',
         data: {
             userId: true
         }

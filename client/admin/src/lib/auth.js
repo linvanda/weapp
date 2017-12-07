@@ -1,41 +1,7 @@
 /**
  * 登录授权相关
  */
-import store from '@/store'
-import API from '@/api'
-import router from '@/router'
 import { hasAny } from '@/lib/util'
-
-/**
- * 登录
- * @param {string} account 
- * @param {string} password 
- */
-export function login(account, password, autoLogin) {
-    return API.invoke('session.login', { account, password, autoLogin }).then((data) => {
-        store.dispatch('Login', { token: data.data.token })
-        
-        // 跳转到相关页面
-        router.replace(global.$conf.loginRedirectUrl)
-    })
-}
-
-/**
- * 退出登录
- */
-export function logout() {
-    return API.invoke('session.logout').then(() => frontLogout())
-}
-
-/**
- * 前端退出登录，用于在服务器端 token 过期的情况下使用
- */
-export function frontLogout() {
-    store.dispatch('Logout')
-
-    // 跳转到登陆页
-    router.replace(global.$conf.logoutRedirectUrl)
-}
 
 /**
  * 检查用户是否有指定对角色或权限

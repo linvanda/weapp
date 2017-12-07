@@ -15,7 +15,9 @@ export default {
 body {
     font-family: 'Lucida Grande', Lucida Sans Unicode, Hiragino Sans GB,
         WenQuanYi Micro Hei, Verdana, Aril, sans-serif;
-    outline: none;
+}
+* {
+	outline: none;
 }
 .el-input {
 	.fa{

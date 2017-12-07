@@ -2,6 +2,7 @@
  * 用户数据
  */
 import persist from '@/lib/persist'
+import API from '@/api'
 
 export default {
     state: {
@@ -10,6 +11,34 @@ export default {
         name: '',
         account: '',
         email: ''
+    },
+    getters: {
+        token: state => {
+            const token = state.token
+
+            if (
+                token &&
+                token.value &&
+                token.expire &&
+                new Date(token.expire.split(' ')[0]) > new Date()
+            ) {
+                return token.value
+            }
+
+            return ''
+        },
+        logined(state) {
+            const token = state.token
+            return !!(
+                token &&
+                token.value &&
+                token.expire &&
+                new Date(token.expire.split(' ')[0]) > new Date()
+            )
+        },
+        user(state) {
+            return state
+        }
     },
     mutations: {
         SET_TOKEN(state, token) {
@@ -21,17 +50,49 @@ export default {
         }
     },
     actions: {
-        // 由于登录和登出除了从服务器获取数据并设置到 store，还有额外的业务逻辑，因而业务不放在这里，此处仅仅设置相关数据
-        Login({ commit }, { token }) {
-            commit('SET_TOKEN', token)
+        Login({ commit }, { account, password, autoLogin }) {
+            return new Promise(resolve => {
+                API.invoke('session.login', {
+                    account,
+                    password,
+                    autoLogin
+                }).then(loginer => {
+                    commit('SET_TOKEN', loginer.token)
+                    resolve(loginer)
+                })
+            })
         },
-        Logout({ commit }) {
-            commit('SET_TOKEN', {})
-            commit('SET_USERINFO', {
-                id: '',
-                name: '',
-                account: '',
-                email: ''
+        Logout() {
+            return new Promise(resolve => {
+                API.invoke('session.logout').then(() => {
+                    this.dispatch('FrontLogout').then(() => resolve())
+                })
+            })
+        },
+        FrontLogout({ commit }) {
+            return new Promise(resolve => {
+                commit('SET_TOKEN', {})
+                commit('SET_USERINFO', {
+                    id: '',
+                    name: '',
+                    account: '',
+                    email: ''
+                })
+
+                resolve()
+            })
+        },
+        LoginerInfo({ commit }) {
+            return new Promise((resolve, reject) => {
+                if (!this.getters.token) {
+                    return reject('no token')
+                }
+                
+                API.invoke('session.loginerInfo', this.getters.token).then(data => {
+                    commit('SET_USERINFO', data)
+
+                    resolve(data)
+                })
             })
         }
     }

@@ -1,6 +1,10 @@
 import { Message, MessageBox } from 'element-ui'
-import { empty, isType, matchAll } from '@/lib/util'
+import path from 'path'
+import { empty, isType, matchAll, camelToUnderline } from '@/lib/util'
 import http from '@/lib/http'
+
+let xLoading = null
+let xNoIntercept = false
 
 /**
  * 配置处理
@@ -24,10 +28,15 @@ function normalizeConfig(apiConfig) {
                 // 非 Object 类型作为 default
                 val = { type: val.constructor, default: val }
             } else {
+                val.required || (val.required = false)
                 typeof val.type === 'function' && (val.type = [val.type])
                 val.type || (val.type = [String, Number])
-                val.required || (val.required = false)
             }
+
+            // 将 Boolean 改成 Number
+            val.type = val.type.map(item => {
+                return item === Boolean ? Number : item
+            })
 
             apiConfig['data'][key] = val
         })
@@ -43,6 +52,7 @@ function normalizeConfig(apiConfig) {
  */
 function normalizeParams(data, config) {
     config = config || {}
+    data = data || {}
 
     // 当 data 不是 Object 且 config 只有一个配置项时，该 data 就是该项的值
     if (!isType(data, Object) && Object.keys(config).length === 1) {
@@ -51,12 +61,19 @@ function normalizeParams(data, config) {
         }
     }
 
+    // Boolean 改成 0 和 1
+    Object.keys(data).forEach(key => {
+        if (isType(data[key], Boolean)) {
+            data[key] += 0
+        }
+    })
+
     for (const key of Object.keys(config)) {
         const cval = config[key]
         let dval = data[key]
 
         // 必填与默认值
-        if (typeof dval === 'undefined') {
+        if (empty(dval, true)) {
             if (
                 typeof cval.required !== 'undefined' &&
                 cval.required === true
@@ -106,26 +123,59 @@ function normalizeUrl(url, data) {
 }
 
 /**
- * 将驼峰式 key 转换为 _
- * @param {object} data
+ * 拦截请求，有问题则返回 Promise
+ * @param {Object} response
  */
-function transDataIndex(data) {
-    if (empty(data)) {
-        return data
+function interceptResponse(response) {
+    const data = response.data
+    const code = global.$conf.code
+    const httpCode = response.code
+    const config = response.config
+
+    if (
+        httpCode < 200 ||
+        httpCode >= 300 ||
+        data.constructor !== Object ||
+        !data.code
+    ) {
+        return Promise.reject(
+            Object.assign(response, { errorMsg: '服务器响应失败' })
+        )
     }
 
-    let result = {}
-
-    Object.keys(data).forEach(key => {
-        let newKey = []
-        for (const c of key) {
-            newKey.push(c >= 'A' && c <= 'Z' ? '_' + c.toLowerCase() : c)
+    /**
+     * 应用层通用错误的处理
+     */
+    if (!config['x-no-intercept'] && data.code !== code.OK) {
+        if (data.code === code.NO_LOGIN) {
+            // 未登录
+            MessageBox.alert('您尚未登录或登录已过期，请重新登录', {
+                callback: () => {
+                    require('@/store')
+                        .default.dispatch('FrontLogout')
+                        .then(() => {
+                            location.reload()
+                            require('@/router').default.replace({
+                                name: 'login'
+                            })
+                        })
+                }
+            })
+        } else if (data.code === code.NO_PERMISSION) {
+            // 未授权
+            MessageBox.alert(data.msg || '您没有权限进行此项操作')
+        } else {
+            MessageBox.alert(data.msg || '抱歉，本次操作失败')
         }
-        newKey = newKey.join('')
-        result[newKey] = data[key]
-    })
 
-    return result
+        return Promise.reject(
+            Object.assign(response, {
+                errorMsg: data.msg || '操作失败'
+            })
+        )
+    }
+
+    return Promise.resolve(response)
 }
 
 /**
@@ -137,16 +187,20 @@ function transDataIndex(data) {
  */
 function request(url, method, data, config) {
     const store = require('@/store').default
-    let loadingFlag = api.loadingFlag
+
+    url = path.join(global.$conf.apiPrefix, url)
 
     // 设置 loading 状态
-    console.log('==')
-    if (loadingFlag) {
-        console.log('0-0-')
-        store.commit('START_LOADING', loadingFlag)
-        config['x-loading'] = loadingFlag
-        api.loadingFlag = null
+    let _loadingFlag = xLoading
+    if (_loadingFlag) {
+        store.commit('START_LOADING', _loadingFlag)
+        config['x-loading'] = _loadingFlag
+        xLoading = null
     }
+
+    // 是否拦截业务错误
+    config['x-no-intercept'] = xNoIntercept
+    xNoIntercept = false
 
     return new Promise(resolve => {
         let conf = {
@@ -161,129 +215,100 @@ function request(url, method, data, config) {
         }
 
         Object.assign(conf, config)
-        
+
         http(conf)
             .then(response => {
-                const data = response.data
-                const code = global.$conf.code
-                const httpCode = response.code
-                const config = response.config
+                // 响应拦截
+                return interceptResponse(response).then(response => {
+                    // 停止 loading
+                    config['x-loading'] &&
+                        config['x-loading'] === _loadingFlag &&
+                        store.commit('STOP_LOADING')
 
-                if (httpCode < 200 || httpCode >= 300 || data.constructor !== Object || !data.code) {
-                    return Promise.reject(Object.assign(response, { 'errorMsg': '服务器响应失败' }))
-                }
-
-                /**
-                 * 应用层通用错误的处理
-                 */
-                if (data.code !== code.OK) {
-                    if (data.code === code.NO_LOGIN) {
-                        // 未登录
-                        MessageBox.alert('您尚未登录或登录已过期，请重新登录', {
-                            callback: () => {
-                                require('@/lib/auth').frontLogout()
-                            }
-                        })
-                    } else if (data.code === code.NO_PERMISSION) {
-                        // 未授权
-                        MessageBox.alert(data.msg || '您没有权限进行此项操作')
-                    } else {
-                        MessageBox.alert(data.msg || '抱歉，本次操作失败')
-                    }
-
-                    return Promise.reject(Object.assign(response, { 'errorMsg': data.msg || '操作失败' }))
-                }
-
-                // 停止 loading
-                config['x-loading'] && config['x-loading'] === loadingFlag && store.commit('STOP_LOADING')
-
-                resolve(response.data)
+                    resolve(config['x-no-intercept'] ? response.data : response.data.data)
+                })
             })
             .catch(response => {
                 // 停止 loading
                 const config = response.config
-                config['x-loading'] && config['x-loading'] === loadingFlag && store.commit('STOP_LOADING')
-                console.log('api error:', response)
+                config['x-loading'] &&
+                    config['x-loading'] === _loadingFlag &&
+                    store.commit('STOP_LOADING')
+
+                console.log('api error.url:' + url, response)
             })
     })
 }
 
 function error(apiMsg, msg = '接口调用错误') {
     Message.error(msg)
+
     return Promise.reject(apiMsg)
 }
 
-/**
- * api 调用的统一入口
- */
-let api = { loadingFlag: null }
+export default {
+    // 统一调用入口
+    invoke: function(apiName, params, config = {}) {
+        const apiArr = apiName.split('.')
+        let apiModule = null
+        const len = apiArr.length
 
-/**
- * 统一调用入口
- * @param {string} apiName
- * @param {any} args
- * @param {object} config
- */
-api.invoke = function(apiName, params, config = {}) {
-    const apiArr = apiName.split('.')
-    let apiModule = null
-    const len = apiArr.length
+        try {
+            // 模块加载
+            apiModule = require('./' + apiArr.slice(0, len - 1).join('/'))
+                .default
+        } catch (e) {
+            return error(`no api module:${apiName}.error:${e}`)
+        }
 
-    try {
-        // 模块加载
-        apiModule = require('./' + apiArr.slice(0, len - 1).join('/')).default
-    } catch (e) {
-        return error(`no api module:${apiName}.error:${e}`)
+        let apiConfig = apiModule[apiArr[len - 1]]
+
+        if (typeof apiConfig === 'undefined') {
+            return error(`no api:${apiName}`)
+        }
+
+        try {
+            // 配置处理
+            apiConfig = normalizeConfig(apiConfig)
+        } catch (e) {
+            return error(`config error: ${e}`)
+        }
+
+        if (!apiConfig.url) {
+            return error(`api no url set:${apiName}`)
+        }
+
+        // 参数处理
+        try {
+            params = normalizeParams(params, apiConfig.data)
+        } catch (e) {
+            return error(`params format error:${apiName}.error: ${e}`)
+        }
+
+        // url 处理
+        let url
+        let data
+        try {
+            ;[url, data] = normalizeUrl(apiConfig.url, params)
+        } catch (e) {
+            return error(`url error.url:${apiConfig.url}.error:${e}`)
+        }
+
+        // 发起请求
+        return request(url, apiConfig.method, camelToUnderline(data), config)
+    },
+    // 打开 loading 闸口
+    loading: function() {
+        if (!require('@/store').default.state.loading) {
+            xLoading = parseInt(Math.random() * 10000, 10)
+        }
+
+        return this
+    },
+    // 内部不要拦截业务错误码，由外界自行处理
+    noIntercept: function() {
+        xNoIntercept = true
+
+        return this
     }
-
-    let apiConfig = apiModule[apiArr[len - 1]]
-
-    if (typeof apiConfig === 'undefined') {
-        return error(`no api:${apiName}`)
-    }
-
-    try {
-        // 配置处理
-        apiConfig = normalizeConfig(apiConfig)
-    } catch (e) {
-        return error(`config error: ${e}`)
-    }
-
-    if (!apiConfig.url) {
-        return error(`api no url set:${apiName}`)
-    }
-
-    // 参数处理
-    try {
-        params = normalizeParams(params, apiConfig.data)
-    } catch (e) {
-        return error(
-            `params format error:${apiName}.error: ${e}`
-        )
-    }
-
-    // url 处理
-     let url
-     let data
-    try {
-        [url, data] = normalizeUrl(apiConfig.url, params)
-    } catch (e) {
-        return error(`url error.url:${apiConfig.url}.error:${e}`)
-    }
-
-    // 发起请求
-    return request(url, apiConfig.method, transDataIndex(data), config)
 }
-
-/**
- * 打开 loading 闸口
- */
-api.loading = function() {
-    if (!require('@/store').default.state.loading) {
-        this.loadingFlag = parseInt(Math.random() * 10000, 10)
-    }
-
-    return this
-}
-
-export default api
