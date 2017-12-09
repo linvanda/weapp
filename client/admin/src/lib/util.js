@@ -56,6 +56,10 @@ export function isType(object, types) {
         return typeof types === 'undefined'
     }
 
+    if (object === null) {
+        return object === types
+    }
+
     if (types.constructor === Function) {
         return object.constructor === types
     }
@@ -67,6 +71,22 @@ export function isType(object, types) {
     }
 
     return false
+}
+
+/**
+ * 获取类型
+ * @param {any} object 
+ */
+export function type(object) {
+    if (typeof object === 'undefined') {
+        return undefined
+    }
+
+    if (object === null) {
+        return null
+    }
+
+    return object.constructor
 }
 
 /**

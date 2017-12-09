@@ -1,9 +1,8 @@
 import Mock from 'mockjs'
-import URI from 'urijs'
 
-Mock.setup({
-    timeout: 1000
-})
+// Mock.setup({
+//     timeout: 1000
+// })
 
 /**
  * 获取登陆者信息

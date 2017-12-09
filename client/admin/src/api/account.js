@@ -12,7 +12,7 @@ export default {
          * default: 默认值
          * required: 是否必须，默认 false
          * validator: 验证器函数，返回 Boolean
-         * 
+         *
          * 简写示例：
          *      page: 1 // { type: Number, default: 1 }
          *      name: 'test' // { type: String, default: 'test' }
@@ -31,6 +31,9 @@ export default {
             filters: {
                 type: Object,
                 default: {}
+            },
+            orderBy: {
+                type: Array
             }
         }
     },
@@ -62,5 +65,6 @@ export default {
                 type: Array,
                 required: true
             }
+        }
     }
 }

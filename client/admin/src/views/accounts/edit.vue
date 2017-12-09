@@ -1,7 +1,7 @@
 <template>
     <el-row>
         <el-col :span="12">
-            <el-form :model="user" ref="form" label-width="80px" :rules="rules" v-loading="$store.state.loading">
+            <el-form :model="user" ref="form" label-width="80px" :rules="rules" v-loading="!!$store.state.loading">
                 <el-form-item label="账号" prop="account">{{ user.account }}</el-form-item>
                 <el-form-item label="姓名" prop="name">
                     <el-input v-model="user.name"></el-input>
@@ -22,7 +22,7 @@
                 </el-form-item>
                 <el-form-item>
                     <el-button @click="$router.back()">返回</el-button>
-                    <el-button @click="submit('form')" type="primary">提交</el-button>
+                    <el-button @click="submit('form')" type="primary" :loading="!!$store.state.doing">提交</el-button>
                 </el-form-item>
             </el-form>
         </el-col>
@@ -69,11 +69,7 @@ export default {
             API.loading()
                 .invoke('account.info', this.id)
                 .then(user => {
-                    this.user.account = user.account
-                    this.user.name = user.name
-                    this.user.email = user.email
-                    this.user.mobile = user.mobile
-                    this.user.roles = ['admin']
+                    Object.assign(this.user, user)
                 })
             API.invoke('permission.roles').then(roles => {
                 // 超级管理员
@@ -88,10 +84,9 @@ export default {
             })
         },
         submit(form) {
-            console.log(this.user.roles)
             this.$refs[form].validate(valid => {
                 if (valid) {
-                    
+                    API.doing().invoke('account.edit', Object.assign({ userId: this.id }, this.user)).success()
                 }
             })
         },

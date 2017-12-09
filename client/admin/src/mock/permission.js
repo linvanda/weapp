@@ -25,6 +25,12 @@ Mock.mock(/admin\/roles$/, 'get', () => {
             name: 'goods-manager',
             title: '商品管理员',
             isAdmin: false
+        },
+        {
+            id: '@guid',
+            name: 'publisher',
+            title: '发布员',
+            isAdmin: false
         }
     ]
 

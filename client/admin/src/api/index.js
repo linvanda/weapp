@@ -1,9 +1,11 @@
 import { Message, MessageBox } from 'element-ui'
 import path from 'path'
+import _ from 'lodash'
 import { empty, isType, matchAll, camelToUnderline } from '@/lib/util'
 import http from '@/lib/http'
 
-let xLoading = null
+let xLoading = false
+let xDoing = false
 let xNoIntercept = false
 
 /**
@@ -61,10 +63,21 @@ function normalizeParams(data, config) {
         }
     }
 
-    // Boolean 改成 0 和 1
+    // 预处理
     Object.keys(data).forEach(key => {
+        // Boolean 改成 0 和 1
         if (isType(data[key], Boolean)) {
             data[key] += 0
+        }
+
+        // null 和 undefined 改成空字符串
+        if (typeof data[key] === 'undefined' || data[key] === null) {
+            data[key] = ''
+        }
+
+        // 去除字符串两端空格
+        if (isType(data[key], String)) {
+            data[key] = _.trim(data[key])
         }
     })
 
@@ -187,7 +200,7 @@ function interceptResponse(response) {
  */
 function request(url, method, data, config) {
     const store = require('@/store').default
-
+    
     url = path.join(global.$conf.apiPrefix, url)
 
     // 设置 loading 状态
@@ -196,6 +209,14 @@ function request(url, method, data, config) {
         store.commit('START_LOADING', _loadingFlag)
         config['x-loading'] = _loadingFlag
         xLoading = null
+    }
+
+    // 设置 doing 状态
+    let _doingFlag = xDoing
+    if (_doingFlag) {
+        store.commit('START_DOING', _doingFlag)
+        config['x-doing'] = _doingFlag
+        xDoing = null
     }
 
     // 是否拦截业务错误
@@ -225,7 +246,16 @@ function request(url, method, data, config) {
                         config['x-loading'] === _loadingFlag &&
                         store.commit('STOP_LOADING')
 
-                    resolve(config['x-no-intercept'] ? response.data : response.data.data)
+                    // 停止 doing
+                    config['x-doing'] &&
+                        config['x-doing'] === _doingFlag &&
+                        store.commit('STOP_DOING')
+
+                    resolve(
+                        config['x-no-intercept']
+                            ? response.data
+                            : response.data.data
+                    )
                 })
             })
             .catch(response => {
@@ -234,6 +264,11 @@ function request(url, method, data, config) {
                 config['x-loading'] &&
                     config['x-loading'] === _loadingFlag &&
                     store.commit('STOP_LOADING')
+
+                // 停止 doing
+                config['x-doing'] &&
+                    config['x-doing'] === _doingFlag &&
+                    store.commit('STOP_DOING')
 
                 console.log('api error.url:' + url, response)
             })
@@ -301,6 +336,14 @@ export default {
     loading: function() {
         if (!require('@/store').default.state.loading) {
             xLoading = parseInt(Math.random() * 10000, 10)
+        }
+
+        return this
+    },
+    // 打开按钮的 loading 闸口
+    doing: function() {
+        if (!require('@/store').default.state.doing) {
+            xDoing = parseInt(Math.random() * 10000, 10)
         }
 
         return this

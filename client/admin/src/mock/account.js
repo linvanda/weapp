@@ -1,9 +1,10 @@
 import Mock from 'mockjs'
 import URI from 'urijs'
+import _ from 'lodash'
 
-Mock.setup({
-    timeout: 1000
-})
+// Mock.setup({
+//     timeout: 1000
+// })
 
 /**
  * 用户信息详情
@@ -39,7 +40,15 @@ Mock.mock(/users(\?.*)?$/, 'get', (options) => {
                 account: '@string(8)',
                 email: '@email',
                 mobile: /13[0-9]{9}/,
-                'roles|1': ['editor', 'admin']
+                'roles|1-2': () => {
+                    const arr = ['超级管理员', '订单管理员', '发布员']
+                    let newArr = []
+                    for (const i of _.range(_.random(1, 3))) {
+                        newArr.push(arr[_.random(0, 2)])
+                    }
+
+                    return newArr
+                }
             })
         )
     }
@@ -57,3 +66,12 @@ Mock.mock(/users(\?.*)?$/, 'get', (options) => {
  * 删除账号
  */
 Mock.mock(/users\/[^/]+$/, 'delete', () => ({ code: 1000 }))
+
+/**
+ * 编辑账号
+ */
+Mock.mock(/users\/[^/]+$/, 'patch', () => {
+    return {
+        code: 1000
+    }
+})

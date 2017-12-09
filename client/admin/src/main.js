@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import ElementUI from 'element-ui'
+import { Message } from 'element-ui'
 import 'normalize.css'
 import 'config/app'
 import App from '@/App'
@@ -21,6 +22,14 @@ Object.keys(filters).forEach(name => Vue.filter(name, filters[name]))
 
 // 指令
 Object.keys(directives).forEach(name => Vue.directive(name, directives[name]))
+
+// 给 Promise 加上成功提示的扩展
+/* eslint-disable no-extend-native */
+Promise.prototype.success = function(msg = '操作成功！') {
+    this.then(() => {
+        Message.success(msg)
+    })
+}
 
 /* eslint-disable no-new */
 new Vue({

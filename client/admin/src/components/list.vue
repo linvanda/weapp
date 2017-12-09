@@ -1,58 +1,103 @@
 <template>
     <div>
-        <section class="search" v-show="showSearch"></section>
-        <section class="toolbar" v-show="showToolbar"></section>
-        <section class="list"></section>
-        <section class="pagination" v-show="showPagination"></section>
+        <x-search v-if="filters && filters.length" :items.sync="filters" @search="search"></x-search>
+        <x-toolbar v-if="toolbar && toolbar.length" :items="toolbar" @click="toolbarClick"></x-toolbar>
     </div>
 </template>
 
 <script>
-import { empty } from '@/lib/util'
+import XSearch from './_list/search'
+import XToolbar from './_list/toolbar'
+import XRegion from './Region'
 
 export default {
-    props: {
-        // api: 获取数据的 api 名称，如 user.list，api 需要的参数全部通过 search 项配置
-        //      数据的返回格式： { total: 200, data: [...] }
-        api: {
-            type: String,
-            required: true
-        },
-        // api 获取的数据如何呈现出来
-        // { table: {...table 的配置信息，事件以 event_ 开头}, col: [...列的配置信息，key: api 返回的字段，可以空，其它：col的配置项] }
-        present: {
-            type: Object,
-            validator(value) {
-                if (empty(value) || empty(value.col)) {
-                    return false
+    components: {
+        XSearch,
+        XToolbar,
+        XRegion
+    },
+    data() {
+        return {
+            filters: [
+                { key: 'account', label: '账号' }, // 输入框、默认空字符串
+                {
+                    key: 'name',
+                    type: 'input',
+                    label: '姓名',
+                    placeholder: '请输入姓名',
+                    value: ''
+                },
+                {
+                    key: 'role',
+                    label: '角色',
+                    type: 'select', // 单选下拉
+                    placeholder: '选择角色',
+                    data: [
+                        { key: 'admin', label: '超级管理员' },
+                        { key: 'editor', label: '编辑人员' }
+                    ],
+                    value: ''
+                },
+                {
+                    key: 'love',
+                    type: 'multiselect',
+                    label: '爱好',
+                    data: [
+                        { key: 'boll', label: '打球' },
+                        { key: 'mount', label: '爬山' }
+                    ],
+                    value: []
+                },
+                {
+                    key: 'score',
+                    label: '积分',
+                    type: 'range', // 数字范围
+                    // value: [1, 9]
+                },
+                {
+                    key: 'date',
+                    label: '注册日期',
+                    type: 'daterange', // 日期范围
+                    // value: ['2010-09-12', '2019-09-19'] // 日期字符串
+                },
+                {
+                    key: 'region',
+                    label: '地区',
+                    type: 'region',
+                    // value: [],
+                    level: 3,
+                    pickAnyLevel: false
                 }
-
-                return true
-            }
-        },
-        // 搜索配置，格式： { label: 标题, type: input|select|multiselect|daterange|range|hidden, 
-        //                 data: 某些数据类型需要的数据, default: 默认值 }
-        search: {
-            type: Object,
-            default: {}
-        },
-        // 分页配置
-        pagination: {
-            type: Object,
-            default: {
-                layout: 'total, prev, pager, next'
-            }
+            ],
+            toolbar: [
+                {
+                    key: 'custom',
+                    type: 'button',
+                    label: '自定义',
+                    buttonType: 'default',
+                    permission: ['admin']
+                },
+                {
+                    type: 'export'
+                }
+            ]
         }
     },
-    computed: {
-        showSearch() {
-            return true
+    methods: {
+        toolbarClick(key) {
+            // toolbar 点击
         },
-        showToolbar() {
-            return true
+        search() {
+            // 搜索
+            console.log('=-=', this.filters)
         },
-        showPagination() {
-            return true
+        test() {
+
+        }
+    },
+    watch: {
+        filters(val) {
+            console.log('filter:', val)
         }
     }
 }
