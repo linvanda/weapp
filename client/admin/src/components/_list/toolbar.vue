@@ -1,6 +1,6 @@
 <template>
     <section class="toolbar">
-        <el-button v-for="item in toolItems" :key="item.key" @click="click(item.key)" :type="item.buttonType || 'default'" v-permit="item.permission">
+        <el-button v-for="item in toolItems" :key="item.key" @click="click(item)" :type="item.buttonType || 'default'" :loading="item.loading ? !!$store.state.doing : false" v-permit="item.permission">
             <i v-if="item.icon" :class="item.icon"></i> 
             {{ item.label }}
         </el-button>
@@ -38,6 +38,7 @@ export default {
                     !item['icon'] && (item['icon'] = 'el-icon-download')
                     !item['buttonType'] && (item['buttonType'] = 'primary')
                     !item['key'] && (item['key'] = 'export')
+                    item['loading'] = true
                 }
 
                 return item
@@ -45,8 +46,8 @@ export default {
         }
     },
     methods: {
-        click(key) {
-            this.$emit('click', key)
+        click(item) {
+            this.$emit('click', item)
         }
     }
 }
@@ -55,5 +56,6 @@ export default {
 <style lang="scss" scoped>
 .toolbar {
     text-align: right;
+    padding-bottom: 20px;
 }
 </style>

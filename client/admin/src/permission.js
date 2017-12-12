@@ -15,7 +15,6 @@
         if (!store.getters.logined) {
             store.dispatch('FrontLogout').then(() => {
                 // 跳转到登陆页
-                location.reload()
                 router.replace(global.$conf.logoutRedirectUrl)
             })
         } else {

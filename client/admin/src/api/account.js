@@ -66,5 +66,8 @@ export default {
                 required: true
             }
         }
+    },
+    export: {
+        url: 'users?_type=export'
     }
 }

@@ -50,15 +50,7 @@ export default {
                             autoLogin: this.login.autoLogin
                         })
                         .then(() => {
-                            this.$store.dispatch('initApp').then(getters => {
-                                // 引入主题文件
-                                document.getElementById(
-                                    'theme-css-link'
-                                ).href = getters.theme.path
-                            })
-
-                            // 跳转到相关页面
-                            this.$router.replace(global.$conf.loginRedirectUrl)
+                            location.reload()
                         })
                 }
             })

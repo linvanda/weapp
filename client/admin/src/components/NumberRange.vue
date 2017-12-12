@@ -55,10 +55,9 @@ export default {
 
             /* eslint-disable eqeqeq */
             if (val != this.parseFloat(val)) {
-                console.log('blur')
-                // 模拟 input 事件
-                event.target.value = this.parseFloat(val)
-                this.inputEvent(event)
+                // 纠正父组件的数据
+                this[event.target.name] = this.parseFloat(val)
+                this.change()
             }
         },
         parseFloat(val) {

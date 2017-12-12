@@ -38,7 +38,7 @@ Mock.mock(/session$/, 'post', options => {
         data: {
             token: {
                 value: '123456',
-                expire: '2017-12-12'
+                expire: '2018-12-12'
             }
         }
     }

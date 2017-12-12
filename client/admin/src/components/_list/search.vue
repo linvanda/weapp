@@ -6,9 +6,9 @@
                     <el-option v-for="option in item.data" :key="option.key" :label="option.label" :value="option.label"></el-option>
                 </el-select>
                 <number-range v-else-if="item.type === 'range'" v-model="item.value"></number-range>
-                <el-date-picker v-else-if="item.type === 'daterange'" v-model="item.value" format="yyyy-MM-dd" value-format="yyyy-MM-dd" type="daterange" :picker-options="dateRangeOptions" range-separator="至" unlink-panels start-placeholder="开始日期"
-      end-placeholder="结束日期"></el-date-picker>
+                <el-date-picker v-else-if="item.type === 'daterange'" v-model="item.value" format="yyyy-MM-dd" value-format="yyyy-MM-dd" type="daterange" :picker-options="dateRangeOptions" range-separator="至" unlink-panels start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>
                 <x-region v-else-if="item.type === 'region'" v-model="item.value" :level="item.level" :pick-any-level="item.pickAnyLevel"></x-region>
+                <input v-else-if="item.type === 'hidden'" type="hidden" :value="item.value">
                 <el-input v-else v-model="item.value" :placeholder="item.placeholder"></el-input>
             </el-form-item>
             <el-form-item class="search-btn">
@@ -48,7 +48,15 @@ export default {
             validator(items) {
                 for (const item of items) {
                     if (
-                        !(isType(item, Object) && item['key'] && item['label'])
+                        !(isType(item, Object) && item['key'] && (item['label'] || item['type'] === 'hidden'))
+                    ) {
+                        return false
+                    }
+
+                    // 隐藏于必须指定 label
+                    if (
+                        item['type'] === 'hidden' &&
+                        typeof item['value'] === 'undefined'
                     ) {
                         return false
                     }
@@ -109,18 +117,20 @@ export default {
         },
         reset() {
             this.innerItems.forEach(item => {
-                let value = item.value
-                const t = type(value)
+                if (item.type !== 'hidden') {
+                    let value = item.value
+                    const t = type(value)
 
-                if (t === Object) {
-                    value = {}
-                } else if (t === Array) {
-                    value = []
-                } else {
-                    value = ''
+                    if (t === Object) {
+                        value = {}
+                    } else if (t === Array) {
+                        value = []
+                    } else {
+                        value = ''
+                    }
+
+                    item.value = value
                 }
-
-                item.value = value
             })
 
             this.$emit('update:items', this.innerItems)
@@ -149,6 +159,8 @@ export default {
                     item.level || (item.level = 3)
                     ;(item.pickAnyLevel && item.pickAnyLevel === true) ||
                         (item.pickAnyLevel = false)
+                } else if (item.type === 'hidden' && item.label) {
+                    item.label = ''
                 }
 
                 return item
