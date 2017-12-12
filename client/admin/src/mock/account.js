@@ -2,9 +2,9 @@ import Mock from 'mockjs'
 import URI from 'urijs'
 import _ from 'lodash'
 
-// Mock.setup({
-//     timeout: 1000
-// })
+Mock.setup({
+    timeout: 500
+})
 
 /**
  * 用户信息详情

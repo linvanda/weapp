@@ -3,7 +3,7 @@
         <x-search v-if="filters && filters.length" :items.sync="innerFilters" @search="search"></x-search>
         <x-toolbar v-if="toolbar && toolbar.length" :items="toolbar" @click="toolbarClick"></x-toolbar>
         <section class="list">
-            <el-table v-loading="$store.state.loading" :data="list" stripe :default-sort="defSort" @selection-change="selectionChange" @sort-change="sortChange" style="width:100%">
+            <el-table v-loading="$store.state.loading" :data="list" stripe @selection-change="selectionChange" @sort-change="sortChange" style="width:100%">
                 <el-table-column v-if="col[0].type && ['index', 'selection'].indexOf(col[0].type) !== -1" :type="col[0].type"></el-table-column>
                 <el-table-column 
                     v-for="(item, index) in col.slice(1)" 
@@ -17,8 +17,14 @@
                     >
                         <template v-if="item.key && !item.type" slot-scope="scope">
                             <color-span v-if="item.color" :value="scope.row[item.key]" :color="item.color"></color-span>
-                            <span v-else>{{ (item.format && item.format(scope.row, item.key) || scope.row[item.key]) | join }}</span>
+                            <router-link v-else-if="item.link" :to="typeof item.link === 'function' ? item.link(scope.row) : item.link">
+                                {{ (item.format && item.format(scope.row, item.key) || scope.row[item.key]) | join }}
+                            </router-link>
+                            <span v-else>
+                                {{ (item.format && item.format(scope.row, item.key) || scope.row[item.key]) | join }}
+                            </span>
                         </template>
+                        <!-- 二级标题，结构和一级相同 -->
                         <template v-if="item.sub && item.sub.length">
                             <el-table-column 
                                 v-for="(sub, key) in item.sub" 
@@ -31,6 +37,9 @@
                                 >
                                     <template v-if="sub.key" slot-scope="scope">
                                         <color-span v-if="sub.color" :value="scope.row[sub.key]" :color="sub.color"></color-span>
+                                        <router-link v-else-if="sub.link" :to="typeof sub.link === 'function' ? sub.link(scope.row) : sub.link">
+                                            {{ (sub.format && sub.format(scope.row, sub.key) || scope.row[sub.key]) | join }}
+                                        </router-link>
                                         <span v-else>{{ (sub.format && sub.format(scope.row, sub.key) || scope.row[sub.key]) | join }}</span>
                                     </template>
                             </el-table-column>
@@ -108,15 +117,6 @@ export default {
             orderBy: this.defaultSort || [],
             page: 1,
             innerFilters: this.filters
-        }
-    },
-    computed: {
-        defSort() {
-            if (!this.defaultSort || this.defaultSort.length !== 2) {
-                return null
-            }
-
-            return { prop: this.defaultSort[0], order: this.defaultSort[1] === 'desc' ? 'descending' : 'ascending' }
         }
     },
     methods: {

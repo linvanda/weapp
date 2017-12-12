@@ -4,32 +4,32 @@ Mock.mock(/admin\/roles$/, 'get', () => {
     let roles = [
         {
             id: '@guid',
-            name: 'admin',
-            title: '超级管理员',
+            key: 'admin',
+            label: '超级管理员',
             isAdmin: true
         },
         {
             id: '@guid',
-            name: 'editor',
-            title: '编辑人员',
+            key: 'editor',
+            label: '编辑人员',
             isAdmin: false
         },
         {
             id: '@guid',
-            name: 'order-manager',
-            title: '订单管理员',
+            key: 'order-manager',
+            label: '订单管理员',
             isAdmin: false
         },
         {
             id: '@guid',
-            name: 'goods-manager',
-            title: '商品管理员',
+            key: 'goods-manager',
+            label: '商品管理员',
             isAdmin: false
         },
         {
             id: '@guid',
-            name: 'publisher',
-            title: '发布员',
+            key: 'publisher',
+            label: '发布员',
             isAdmin: false
         }
     ]
