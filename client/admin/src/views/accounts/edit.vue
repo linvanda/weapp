@@ -14,10 +14,10 @@
                 </el-form-item>
                 <el-form-item label="角色" prop="roles">
                     <el-checkbox-group v-model="user.roles">
-                        <el-checkbox :label="adminRole.name" :key="adminRole.name" @change="chooseAdmin">{{ adminRole.title }}</el-checkbox>
+                        <el-checkbox :label="adminRole.key" :key="adminRole.key" @change="chooseAdmin">{{ adminRole.label }}</el-checkbox>
                     </el-checkbox-group>
                     <el-checkbox-group v-model="user.roles" :disabled="!roleCanChoose">
-                        <el-checkbox v-for="role in roleList" :label="role.name" :key="role.name">{{ role.title }}</el-checkbox>
+                        <el-checkbox v-for="role in roleList" :label="role.key" :key="role.key">{{ role.label }}</el-checkbox>
                     </el-checkbox-group>
                 </el-form-item>
                 <el-form-item>
@@ -74,12 +74,12 @@ export default {
             API.invoke('permission.roles').then(roles => {
                 // 超级管理员
                 this.adminRole = roles.filter(
-                    item => item.name === global.$conf.superRole
+                    item => item.key === global.$conf.superRole
                 )[0]
 
                 // 普通角色列表
                 this.roleList = roles.filter(
-                    item => item.name !== global.$conf.superRole
+                    item => item.key !== global.$conf.superRole
                 )
             })
         },

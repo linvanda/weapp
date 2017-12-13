@@ -119,6 +119,32 @@ export function matchAll(regExp, text, group = 0) {
 }
 
 /**
+ * 替换占位符，占位符以 : 开头
+ * @param {string} text 
+ * @param {object} data 
+ */
+export function replacePlaceholder(text, data) {
+    if (text.indexOf(':') === -1) {
+        return text
+    }
+
+    data = data || {}
+
+    const matches = matchAll(/\/(:[-_a-zA-Z0-9]+)($|\/)/g, text, 1).sort(
+        (x, y) => y.length - x.length
+    )
+
+    matches.forEach(flag => {
+        const key = flag.slice(1)
+
+        isType(data[key], [String, Number]) &&
+            (text = text.replace(flag, data[key]))
+    })
+
+    return text
+}
+
+/**
  * 时间格式化
  * @param {Date|Number} time
  * @param {String} cFormat

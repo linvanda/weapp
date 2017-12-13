@@ -40,7 +40,6 @@ Mock.mock(/users?_type=export/, 'get', () => {
 Mock.mock(/users(\?.*)?$/, 'get', (options) => {
     let users = []
     const params = URI.parseQuery(options.url.split('?')[1])
-    console.log('options', params)
 
     for (let i = 0; i < params['page_size']; i++) {
         users.push(

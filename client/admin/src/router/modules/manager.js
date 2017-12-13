@@ -60,6 +60,12 @@ export default {
                     name: 'role-list',
                     title: '角色列表',
                     component: _import('permission/role-list')
+                },
+                {
+                    path: ':id',
+                    name: 'role-edit',
+                    title: '编辑角色信息',
+                    component: _import('permission/role-edit')
                 }
             ]
         },

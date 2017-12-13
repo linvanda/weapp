@@ -6,7 +6,7 @@
 
 <script>
 import API from '@/api'
-import XList from '@/components/List'
+import XList from '@/components/XList'
 
 export default {
     components: {
@@ -98,7 +98,7 @@ export default {
                 },
                 {
                     label: '删除',
-                    type: 'danger',
+                    btnType: 'danger',
                     permission: ['admin'],
                     action: (row, vm) => {
                         this.$confirm(`确定删除账号 ${row.account} 吗？`)

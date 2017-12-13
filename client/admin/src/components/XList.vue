@@ -3,10 +3,11 @@
         <x-search v-if="filters && filters.length" :items.sync="innerFilters" @search="search"></x-search>
         <x-toolbar v-if="toolbar && toolbar.length" :items="toolbar" @click="toolbarClick"></x-toolbar>
         <section class="list">
-            <el-table v-loading="$store.state.loading" :data="list" stripe @selection-change="selectionChange" @sort-change="sortChange" style="width:100%">
+            <!-- 主体数据列表 -->
+            <el-table v-loading="$store.state.loading" :data="list" @selection-change="selectionChange" @sort-change="sortChange" style="width:100%">
                 <el-table-column v-if="col[0].type && ['index', 'selection'].indexOf(col[0].type) !== -1" :type="col[0].type"></el-table-column>
                 <el-table-column 
-                    v-for="(item, index) in col.slice(1)" 
+                    v-for="(item, index) in col.slice(col[0].type ? 1 : 0)" 
                     :key="index" 
                     :type="item.type || ''" 
                     :width="item.width || ''"
@@ -45,9 +46,10 @@
                             </el-table-column>
                         </template>
                 </el-table-column>
-                <el-table-column v-if="operations && operations.length" label="操作" :width="66*operations.length+20">
+                <!-- 操作按钮 -->
+                <el-table-column v-if="operations && operations.length" label="操作">
                     <template slot-scope="scope">
-                        <el-button v-for="(btn, key) in operations" :key="key" size="mini" :type="btn.type || 'default'" @click="invokeAction(btn.action, scope.row)" v-permit="btn.permission">{{ btn.label }}</el-button>
+                        <!-- <el-button v-for="(btn, key) in operations" v-if="btn.show ? btn.show(scope.row) : true" :key="key" size="mini" :type="btn.type || 'default'" @click="invokeAction(btn.action, scope.row)" v-permit="btn.permission">{{ btn.label }}</el-button> -->
                     </template>
                 </el-table-column>
             </el-table>
@@ -75,16 +77,13 @@ export default {
     },
     props: {
         filters: {
-            type: Array,
-            default: []
+            type: Array
         },
         toolbar: {
-            type: Array,
-            default: []
+            type: Array
         },
         defaultSort: {
-            type: Array,
-            default: []
+            type: Array
         },
         // 列配置
         col: {
