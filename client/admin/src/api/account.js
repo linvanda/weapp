@@ -42,25 +42,25 @@ export default {
     },
     // 用户信息详情
     info: {
-        url: 'users/:userId',
+        url: 'users/:id',
         data: {
-            userId: true
+            id: true
         }
     },
     // 删除用户
     delete: {
-        url: 'users/:userId',
+        url: 'users/:id',
         method: 'delete',
         data: {
-            userId: true
+            id: true
         }
     },
     // 编辑用户
     edit: {
-        url: 'users/:userId',
+        url: 'users/:id',
         method: 'patch',
         data: {
-            userId: true,
+            id: true,
             name: true,
             email: false,
             mobile: false,

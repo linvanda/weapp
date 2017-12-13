@@ -87,7 +87,7 @@ export default {
         submit(form) {
             this.$refs[form].validate(valid => {
                 if (valid) {
-                    API.doing().invoke('account.edit', Object.assign({ userId: this.id }, this.user)).success()
+                    API.doing().invoke('account.edit', Object.assign({ id: this.id }, this.user)).success()
                 }
             })
         },

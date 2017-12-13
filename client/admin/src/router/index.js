@@ -1,7 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Layout from '@/views/layout/index'
-import Manager from '@/router/modules/manager'
+import Manager from '@/router/modules/Manager'
+import PublicAccount from '@/router/modules/PublicAccount'
 
 const _import = require('./_import_' + process.env.NODE_ENV).default
 
@@ -42,6 +43,7 @@ export const routes = [
                 }
             ]
         },
+        PublicAccount,
         Manager,
         {
             path: '/404',

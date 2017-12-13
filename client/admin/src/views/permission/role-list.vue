@@ -20,7 +20,14 @@ export default {
             ],
             api: 'permission.roleList',
             operations: [
-                { label: '修改 / 授权', type: 'link', to: 'role-edit' },
+                { 
+                    label: '修改 / 授权', 
+                    type: 'link', 
+                    to: 'role-edit',
+                    show: row => {
+                        return row.key !== global.$conf.superRole
+                    }
+                },
                 {
                     type: 'delete',
                     api: 'permission.deleteRole',

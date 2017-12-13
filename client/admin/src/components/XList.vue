@@ -4,7 +4,7 @@
         <x-toolbar v-if="toolbar && toolbar.length" :items="toolbar" @click="toolbarClick"></x-toolbar>
         <section class="list">
             <!-- 主体数据列表 -->
-            <el-table v-loading="$store.state.loading" :data="list" @selection-change="selectionChange" @sort-change="sortChange" style="width:100%">
+            <el-table v-loading="$store.state.loading" :data="list" border @selection-change="selectionChange" @sort-change="sortChange" style="width:100%">
                 <el-table-column v-if="col[0].type && ['index', 'selection'].indexOf(col[0].type) !== -1" :type="col[0].type"></el-table-column>
                 <el-table-column 
                     v-for="(item, index) in col.slice(col[0].type ? 1 : 0)" 
@@ -185,7 +185,6 @@ export default {
         selectionChange(vals) {
             this.$emit('selection-change', vals)
         },
-        // 调用外界传入的方法，并将本 vm 实例带过去，让外界可以操作此 vm
         operationDone(result, cfg) {
             if (cfg.type && cfg.type === 'delete') {
                 this.fetchData()

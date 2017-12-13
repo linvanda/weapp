@@ -115,12 +115,6 @@ export default {
             defaultSort: ['account', 'desc']
             
         }
-    },
-    methods: {
-        // 多选变化时
-        selectionChange(vals) {
-            // console.log('=', vals)
-        }
     }
 }
 </script>
