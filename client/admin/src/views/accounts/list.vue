@@ -86,31 +86,28 @@ export default {
                         { key: 'email', label: '邮箱', color: 'orange' }
                     ]
                 },
-                { key: 'roles', label: '角色', color: { '超级管理员': 'green', '发布员': 'blue', '_': '#aaa' } }
+                { 
+                    key: 'roles', 
+                    label: '角色', 
+                    color: { '超级管理员': 'green', '发布员': 'blue', '_': '#aaa' },
+                    format(row, key) {
+                        return row[key].map(item => item.name)
+                    }
+                }
             ],
             operations: [
                 { 
                     label: '编辑', 
-                    type: 'primary', 
-                    action: (row) => {
-                        this.$router.push({ name: 'account-edit', params: { id: row.id } })
-                    }
+                    type: 'link', 
+                    to: 'account-edit'
                 },
                 {
-                    label: '删除',
-                    btnType: 'danger',
+                    type: 'delete',
+                    msg: '确定删除账号 :account 吗？',
+                    api: 'account.delete',
                     permission: ['admin'],
-                    action: (row, vm) => {
-                        this.$confirm(`确定删除账号 ${row.account} 吗？`)
-                        .then(() => {
-                            API.loading()
-                                .invoke('account.delete', row.id)
-                                .then(() => {
-                                    this.$message.success('删除成功')
-                                    vm.fetchData()
-                                })
-                        })
-                        .catch(() => {})
+                    show(row) {
+                        return !row.roles.some(item => item.key === 'admin')
                     }
                 }
             ],

@@ -130,10 +130,10 @@ export function replacePlaceholder(text, data) {
 
     data = data || {}
 
-    const matches = matchAll(/\/(:[-_a-zA-Z0-9]+)($|\/)/g, text, 1).sort(
+    const matches = matchAll(/:[-_a-zA-Z0-9]+/g, text).sort(
         (x, y) => y.length - x.length
     )
-
+    
     matches.forEach(flag => {
         const key = flag.slice(1)
 

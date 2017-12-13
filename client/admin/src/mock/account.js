@@ -50,7 +50,11 @@ Mock.mock(/users(\?.*)?$/, 'get', (options) => {
                 email: '@email',
                 mobile: /13[0-9]{9}/,
                 'roles|1-2': () => {
-                    const arr = ['超级管理员', '订单管理员', '发布员']
+                    const arr = [
+                        { key: 'admin', name: '超级管理员' },
+                        { key: 'editor', name: '编辑' },
+                        { key: 'order-manager', name: '订单管理员' }
+                    ]
                     let newArr = []
                     for (const i of _.range(_.random(1, 3))) {
                         newArr.push(arr[_.random(0, 2)])

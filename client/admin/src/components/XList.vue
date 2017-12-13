@@ -17,7 +17,7 @@
                     :prop="item.key || ''"
                     >
                         <template v-if="item.key && !item.type" slot-scope="scope">
-                            <color-span v-if="item.color" :value="scope.row[item.key]" :color="item.color"></color-span>
+                            <color-span v-if="item.color" :value="item.format && item.format(scope.row, item.key) || scope.row[item.key]" :color="item.color"></color-span>
                             <router-link v-else-if="item.link" :to="typeof item.link === 'function' ? item.link(scope.row) : item.link">
                                 {{ (item.format && item.format(scope.row, item.key) || scope.row[item.key]) | join }}
                             </router-link>
@@ -37,7 +37,7 @@
                                 :label="sub.label"
                                 >
                                     <template v-if="sub.key" slot-scope="scope">
-                                        <color-span v-if="sub.color" :value="scope.row[sub.key]" :color="sub.color"></color-span>
+                                        <color-span v-if="sub.color" :value="sub.format && sub.format(scope.row, sub.key) || scope.row[sub.key]" :color="sub.color"></color-span>
                                         <router-link v-else-if="sub.link" :to="typeof sub.link === 'function' ? sub.link(scope.row) : sub.link">
                                             {{ (sub.format && sub.format(scope.row, sub.key) || scope.row[sub.key]) | join }}
                                         </router-link>
@@ -49,7 +49,7 @@
                 <!-- 操作按钮 -->
                 <el-table-column v-if="operations && operations.length" label="操作">
                     <template slot-scope="scope">
-                        <!-- <el-button v-for="(btn, key) in operations" v-if="btn.show ? btn.show(scope.row) : true" :key="key" size="mini" :type="btn.type || 'default'" @click="invokeAction(btn.action, scope.row)" v-permit="btn.permission">{{ btn.label }}</el-button> -->
+                        <x-operation v-for="(cfg, key) in operations" :key="key" :config="cfg" :row="scope.row" @done="operationDone"></x-operation>
                     </template>
                 </el-table-column>
             </el-table>
@@ -64,6 +64,7 @@
 <script>
 import XSearch from './_list/search'
 import XToolbar from './_list/toolbar'
+import XOperation from './_list/operation'
 import XRegion from './Region'
 import ColorSpan from './ColorSpan'
 import API from '@/api'
@@ -72,6 +73,7 @@ export default {
     components: {
         XSearch,
         XToolbar,
+        XOperation,
         XRegion,
         ColorSpan
     },
@@ -184,9 +186,9 @@ export default {
             this.$emit('selection-change', vals)
         },
         // 调用外界传入的方法，并将本 vm 实例带过去，让外界可以操作此 vm
-        invokeAction(action, data) {
-            if (action && typeof action === 'function') {
-                action(data, this)
+        operationDone(result, cfg) {
+            if (cfg.type && cfg.type === 'delete') {
+                this.fetchData()
             }
         }
     },
