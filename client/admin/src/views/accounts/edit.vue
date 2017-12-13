@@ -1,6 +1,6 @@
 <template>
     <el-row>
-        <el-col :span="12">
+        <el-col :span="formWidth">
             <el-form :model="user" ref="form" label-width="80px" :rules="rules" v-loading="!!$store.state.loading">
                 <el-form-item label="账号" prop="account">{{ user.account }}</el-form-item>
                 <el-form-item label="姓名" prop="name">
@@ -14,16 +14,16 @@
                 </el-form-item>
                 <el-form-item label="角色" prop="roles">
                     <el-checkbox-group v-model="user.roles">
-                        <el-checkbox :label="adminRole.key" :key="adminRole.key" @change="chooseAdmin">{{ adminRole.label }}</el-checkbox>
+                        <el-checkbox :label="adminRole.key" :key="adminRole.key" @change="chooseAdmin">{{ adminRole.name }}</el-checkbox>
                     </el-checkbox-group>
-                    <el-checkbox-group v-model="user.roles" :disabled="!roleCanChoose">
-                        <el-checkbox v-for="role in roleList" :label="role.key" :key="role.key">{{ role.label }}</el-checkbox>
+                    <el-checkbox-group v-model="user.roles" :disabled="!roleCanChoose" class="checkbox">
+                        <el-checkbox v-for="role in roleList" :label="role.key" :key="role.key">{{ role.name }}</el-checkbox>
                     </el-checkbox-group>
                 </el-form-item>
-                <el-form-item>
+                <div class="form-btn">
                     <el-button @click="$router.back()">返回</el-button>
                     <el-button @click="submit('form')" type="primary" :loading="!!$store.state.doing">提交</el-button>
-                </el-form-item>
+                </div>
             </el-form>
         </el-col>
     </el-row>
@@ -38,6 +38,7 @@ export default {
     },
     data() {
         return {
+            formWidth: global.$conf.formWidth,
             user: {
                 account: '',
                 name: '',
@@ -71,7 +72,7 @@ export default {
                 .then(user => {
                     Object.assign(this.user, user)
                 })
-            API.invoke('permission.roles').then(roles => {
+            API.invoke('permission.simpleRoleList').then(roles => {
                 // 超级管理员
                 this.adminRole = roles.filter(
                     item => item.key === global.$conf.superRole
@@ -102,11 +103,3 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-.el-form {
-    .el-checkbox {
-        margin-left: 0;
-        margin-right: 30px;
-    }
-}
-</style>

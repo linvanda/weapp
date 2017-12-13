@@ -34,6 +34,25 @@ Mock.mock(/users?_type=export/, 'get', () => {
     }
 })
 
+Mock.mock(/users\?_type=simple/, 'get', () => {
+    let data = []
+    for (let i = 0; i < 20; i++) {
+        data.push(
+            Mock.mock({
+                'id|1-100': 1,
+                name: '@cname',
+                account: '@string(8)',
+                email: '@email',
+                mobile: /13[0-9]{9}/
+            })
+        )
+    }
+    return {
+        code: 1000,
+        data: data
+    }
+})
+
 /**
  * 账号列表
  */

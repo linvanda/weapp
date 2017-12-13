@@ -65,6 +65,7 @@ export default {
                     path: ':id',
                     name: 'role-edit',
                     title: '编辑角色信息',
+                    props: true,
                     component: _import('permission/role-edit')
                 }
             ]

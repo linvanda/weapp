@@ -37,6 +37,9 @@ export default {
             }
         }
     },
+    simpleList: {
+        url: 'users?_type=simple'
+    },
     // 用户信息详情
     info: {
         url: 'users/:userId',

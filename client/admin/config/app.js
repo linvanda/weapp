@@ -37,7 +37,9 @@ const config = {
     // 环境相关配置
     env: process.env,
     // 超级管理员角色名
-    superRole: 'admin'
+    superRole: 'admin',
+    // 编辑页表单默认宽度
+    formWidth: 14
 }
 
 Vue.prototype.$conf = config

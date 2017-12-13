@@ -28,7 +28,7 @@ export default {
                     label: '角色',
                     type: 'select', // 单选下拉
                     placeholder: '选择角色',
-                    data: 'permission.roles',
+                    data: 'permission.simpleRoleList',
                     value: ''
                 },
                 {

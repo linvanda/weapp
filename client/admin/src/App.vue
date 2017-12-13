@@ -28,4 +28,30 @@ body {
 #app{
 	padding-bottom: 80px;
 }
+.form-btn{
+	text-align: center;
+	padding-top:40px;
+	.el-button{
+		width: 120px;
+	}
+}
+.full-transfer {
+	.el-transfer{
+        .el-transfer-panel{
+            width: 300px;
+            .el-transfer-panel__body{
+                height: 420px;
+                .el-transfer-panel__list{
+                    height: 350px;
+                }
+            }
+        }
+    }  
+}
+.el-checkbox-group.checkbox{
+    .el-checkbox{
+        margin-left: 0;
+        margin-right: 30px;
+    }
+}
 </style>
