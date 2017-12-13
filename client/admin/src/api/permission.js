@@ -5,5 +5,12 @@ export default {
     },
     roleList: {
         url: 'roles'
+    },
+    deleteRole: {
+        url: 'roles/:id',
+        method: 'delete',
+        data: {
+            id: true
+        }
     }
 }

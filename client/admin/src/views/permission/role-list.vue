@@ -15,17 +15,16 @@ export default {
                 { key: 'name', label: '角色名称' }
             ],
             col: [
-                { key: 'label', label: '名称' },
+                { key: 'name', label: '名称' },
                 { key: 'users', label: '用户' }
             ],
             api: 'permission.roleList',
             operations: [
-                { label: '修改 / 授权', btnType: 'primary', action: (row) => {this.$router.push({ name: 'role-edit', params: { id: row.id } })} },
+                { label: '修改 / 授权', type: 'link', to: 'role-edit' },
                 {
-                    label: '删除',
-                    action: row => {
-
-                    },
+                    type: 'delete',
+                    api: 'permission.deleteRole',
+                    field: 'name',
                     show: row => {
                         return row.key !== global.$conf.superRole
                     }

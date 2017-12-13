@@ -3,7 +3,7 @@
         <el-form ref="search" inline label-position="left">
             <el-form-item v-for="item in innerItems" :key="item.key" :label="item.label">
                 <el-select v-if="item.type === 'select' || item.type === 'multiselect'" v-model="item.value" clearable filterable :placeholder="item.placeholder" :multiple="item.type === 'multiselect'">
-                    <el-option v-for="option in item.data" :key="option.key" :label="option.label" :value="option.key"></el-option>
+                    <el-option v-for="option in item.data" :key="option.key" :label="option.name" :value="option.key"></el-option>
                 </el-select>
                 <number-range v-else-if="item.type === 'range'" v-model="item.value"></number-range>
                 <el-date-picker v-else-if="item.type === 'daterange'" v-model="item.value" format="yyyy-MM-dd" value-format="yyyy-MM-dd" type="daterange" :picker-options="dateRangeOptions" range-separator="至" unlink-panels start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>

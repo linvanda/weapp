@@ -4,12 +4,12 @@ Mock.mock(/admin\/roles\?_type=simple/, 'get', () => {
     let roles = Mock.mock([
         {
             key: 'admin',
-            label: '超级管理员',
+            name: '超级管理员',
             isAdmin: true
         },
         {
             key: 'editor',
-            label: '编辑人员',
+            name: '编辑人员',
             isAdmin: false
         },
         {
@@ -19,12 +19,12 @@ Mock.mock(/admin\/roles\?_type=simple/, 'get', () => {
         },
         {
             key: 'goods-manager',
-            label: '商品管理员',
+            name: '商品管理员',
             isAdmin: false
         },
         {
             key: 'publisher',
-            label: '发布员',
+            name: '发布员',
             isAdmin: false
         }
     ])
@@ -39,14 +39,14 @@ Mock.mock(/admin\/roles/, 'get', options => {
     const list = Mock.mock([
         {
             id: '@guid',
-            label: '超级管理员',
+            name: '超级管理员',
             key: 'admin',
             users: ['张三', '李四'],
             isAdmin: true
         },
         {
             id: '@guid',
-            label: '编辑',
+            name: '编辑',
             key: 'editor',
             users: ['王五', '李留'],
             isAdmin: false
@@ -60,4 +60,9 @@ Mock.mock(/admin\/roles/, 'get', options => {
             data: list
         }
     }
+})
+
+// 删除角色
+Mock.mock(/admin\/roles\/[^?/]+/, 'delete', {
+    code: 1000
 })
