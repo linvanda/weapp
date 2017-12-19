@@ -1,61 +1,58 @@
 @mixin clearfix {
-    &:after {
-      content: "";
-      display: table;
-      clear: both;
-    }
+  &:after {
+    content: '';
+    display: table;
+    clear: both;
   }
-  
-  @mixin scrollBar {
-    &::-webkit-scrollbar-track-piece {
-      background: #d3dce6;
-    }
-    &::-webkit-scrollbar {
-      width: 6px;
-    }
-    &::-webkit-scrollbar-thumb {
-      background: #99a9bf;
-      border-radius: 20px;
-    }
-  }
-  
-  @mixin relative {
-    position: relative;
-    width: 100%;
-    height: 100%;
-  }
-  
-  @mixin pct($pct) {
-    width: #{$pct};
-    position: relative;
-    margin: 0 auto;
-  }
-  
-  @mixin triangle($width, $height, $color, $direction) {
-    $width: $width/2;
-    $color-border-style: $height solid $color;
-    $transparent-border-style: $width solid transparent;
-    height: 0;
-    width: 0;
-    @if $direction==up {
-      border-bottom: $color-border-style;
-      border-left: $transparent-border-style;
-      border-right: $transparent-border-style;
-    }
-    @else if $direction==right {
-      border-left: $color-border-style;
-      border-top: $transparent-border-style;
-      border-bottom: $transparent-border-style;
-    }
-    @else if $direction==down {
-      border-top: $color-border-style;
-      border-left: $transparent-border-style;
-      border-right: $transparent-border-style;
-    }
-    @else if $direction==left {
-      border-right: $color-border-style;
-      border-top: $transparent-border-style;
-      border-bottom: $transparent-border-style;
-    }
-  }
-  
+}
+
+@mixin arrow($size, $border-color, $direction, $pos-left: auto, $pos-right: auto, $pos-bottom: auto, $pos-top: auto, $bg-color: white) {
+	$deg: 0;
+	$margin: 0;
+	@if $direction == left or $direction == left-center {
+		$deg: -135;
+	} @else if $direction == top or $direction == top-center {
+		$deg: -45;
+	} @else if $direction == right or $direction == right-center {
+		$deg: 45;
+	} @else if $direction == bottom or $direction == bottom-center {
+		$deg: 135;
+	}
+
+	@if $direction == left-center or $direction == right-center {
+		$margin: auto;
+		$pos-top: 0;
+		$pos-bottom: 0;
+	} @else if $direction == top-center or $direction == bottom-center {
+		$margin: auto;
+		$pos-left: 0;
+		$pos-right: 0;
+	}
+
+	&:after {
+		content: '';
+		display: inline-block;
+		width: $size;
+		height: $size;
+		border-top: 1px solid $border-color;
+		border-right: 1px solid $border-color;
+		transform: rotate($direction);
+		-webkit-transform: rotate($deg + deg);
+		position: absolute;
+		top: $pos-top;
+		bottom: $pos-bottom;
+		left: $pos-left;
+		right: $pos-right;
+		background: $bg-color;
+		margin: $margin;
+		z-index: 100;
+  	}
+}
+
+@mixin ellipsis($wrap: 0) {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	@if $wrap == 0 {
+		white-space: nowrap;
+	}
+}

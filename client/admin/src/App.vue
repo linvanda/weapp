@@ -13,12 +13,47 @@ export default {
 
 <style lang="scss">
 body {
-    font-family: 'Lucida Grande', Lucida Sans Unicode, Hiragino Sans GB,
-        WenQuanYi Micro Hei, Verdana, Aril, sans-serif;
+    font-family: "Helvetica Neue", "Hiragino Sans GB", "Microsoft YaHei", "\9ED1\4F53", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    font-size: 14px;
 }
-* {
-	outline: none;
+
+/*reset*/
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre, 
+form,fieldset,input,textarea,p,blockquote,th,td { 
+    padding: 0; 
+    margin: 0; 
+    outline: none;
+    box-sizing: border-box;
+} 
+table { 
+    border-collapse: collapse; 
+    border-spacing: 0; 
+} 
+fieldset,img { 
+    border: 0; 
+} 
+address,caption,cite,code,dfn,em,strong,th,var { 
+    font-weight: normal; 
+    font-style: normal; 
+} 
+ol,ul { 
+    list-style: none; 
+} 
+caption,th { 
+    text-align: left; 
+} 
+h1,h2,h3,h4,h5,h6 { 
+    font-weight: normal; 
+    font-size: 100%; 
+} 
+q:before,q:after { 
+    content:”; 
+} 
+abbr,acronym { 
+    border: 0; 
 }
+
 .el-input {
 	.fa{
 		width:20px;

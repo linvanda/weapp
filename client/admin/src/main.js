@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import ElementUI from 'element-ui'
 import { Message } from 'element-ui'
-import 'normalize.css'
 import 'config/app'
 import App from '@/App'
 import router from '@/router'

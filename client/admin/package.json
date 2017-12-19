@@ -20,9 +20,11 @@
     "lodash": "^4.17.4",
     "mockjs": "^1.0.1-beta3",
     "normalize.css": "^7.0.0",
+    "sortablejs": "^1.7.0",
     "urijs": "^1.19.0",
     "vue": "^2.5.2",
     "vue-router": "^3.0.1",
+    "vuedraggable": "^2.15.0",
     "vuex": "^3.0.1"
   },
   "devDependencies": {
