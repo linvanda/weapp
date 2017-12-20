@@ -1,3 +1,5 @@
+import { listConfig } from './_util'
+
 /**
  * 账号相关 api
  */
@@ -19,23 +21,7 @@ export default {
          *      lovers: ['red', 'blue'] // { type: Array, default: ['red', 'blue'] }
          *      autoLogin: false // { type: [String, Number], required: false }, 注意：如果需要设置 Boolean的默认值，一般采用1/0代替
          */
-        data: {
-            page: {
-                type: Number,
-                default: 1
-            },
-            pageSize: {
-                type: Number,
-                default: 20
-            },
-            filters: {
-                type: Object,
-                default: {}
-            },
-            orderBy: {
-                type: Array
-            }
-        }
+        data: listConfig
     },
     simpleList: {
         url: 'users?_type=simple'

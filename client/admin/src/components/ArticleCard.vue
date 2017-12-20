@@ -4,7 +4,7 @@
             <img :src="main.image">
             <p class="title">{{ main.title }}</p>
         </section>
-        <ul v-if="sub && sub.length" class="sub">
+        <ul v-if="showSub && sub && sub.length" class="sub">
             <li class="item" v-for="(subItem, index) in sub" :key="index">
                 <p class="sub-title">{{ subItem.title }}</p>
                 <div class="img" :style="{ height: subHeight, width: subHeight }">
@@ -44,6 +44,10 @@ export default {
 
                 return true
             }
+        },
+        showSub: {
+            type: Boolean,
+            default: true
         },
         mainHeight: {
             type: String,

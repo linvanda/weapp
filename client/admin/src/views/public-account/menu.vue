@@ -97,6 +97,7 @@
             <div v-else class="dragtip">
                 请通过拖拽左边的菜单进行排序
             </div>
+            <article-choose :visible.sync="chooseArticleVisible"></article-choose>
         </el-col>
     </el-row>
 </template>
@@ -104,6 +105,7 @@
 <script>
 import Operations from '@/components/Operations'
 import ArticleCard from '@/components/ArticleCard'
+import ArticleChoose from '@/components/ArticleChoose'
 import _ from 'lodash'
 import { empty } from '@/lib/util'
 import Draggable from 'vuedraggable'
@@ -112,7 +114,8 @@ export default {
     components: {
         Operations,
         ArticleCard,
-        Draggable
+        Draggable,
+        ArticleChoose
     },
     data() {
         return {
@@ -185,7 +188,8 @@ export default {
                 type: 'message',
                 messageType: 'text',
                 text: ''
-            }
+            },
+            chooseArticleVisible: true
         }
     },
     computed: {
@@ -221,7 +225,11 @@ export default {
         }
     },
     methods: {
-        clickOpArticle(item) {},
+        clickOpArticle(item) {
+            if (item.key === 'choose-article') {
+                this.chooseArticleVisible = true
+            }
+        },
         clickOpImage(item) {},
         removeArticle() {
             this.menu.article = null
