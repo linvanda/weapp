@@ -1,88 +1,101 @@
 <template>
     <el-row>
         <el-col :span="6" class="left">
-            <div class="mobile">
-                <ul class="footer">
-                    <li class="menu" :style="{ width: menuWidth + 'px' }">
-                        <span class="menu-title">菜单名称</span>
-                        <ul class="sub-menu">
-                            <li class="sub-title">
-                                <span>子菜单一</span>
-                            </li>
-                            <li class="sub-title">
-                                <span>子菜单一</span>
-                            </li>
-                            <li class="sub-title">
-                                <span>子菜单一</span>
-                            </li>
-                            <li class="sub-title">
-                                <span class="el-icon-plus"></span>
-                            </li>
-                        </ul>
+            <draggable v-model="menus" :options="dragOptions" class="mobile" :move="onMove">
+                <transition-group name="menu" tag="ul" class="footer">
+                    <li v-for="(menu, index) in menus" :key="index" class="menu"  @click="clickMenu(index)">
+                        <span class="menu-title" :class="{ active: activeMenuIndex === index }">
+                            <i class="fa fa-align-justify" v-show="draggable"></i>
+                            {{ menu.name }}
+                        </span>
+                        <draggable v-show="activeMenuIndex === index" v-model="menu.children" :options="dragOptions" :move="onMove">
+                            <transition-group :name="'submenu-' + index" tag="ul" class="sub-menu">
+                                <li
+                                    v-for="(smenu, sindex) in menu.children || []" 
+                                    :key="index + '-' + sindex" 
+                                    class="sub-title" 
+                                    :class="{ active: activeSubMenuIndex === sindex }" 
+                                    @click.stop="clickSubMenu(sindex)">
+                                        <i class="fa fa-align-justify" v-show="draggable"></i>
+                                        {{ smenu.name }}
+                                </li>
+                                <li 
+                                    v-if="!menu.children || menu.children.length < maxSubMenuCount" 
+                                    class="sub-title" 
+                                    @click.stop="addSubMenu(index)"
+                                    key="add-submenu">
+                                        <span class="el-icon-plus"></span>
+                                </li>
+                            </transition-group>
+                        </draggable>
                     </li>
-                    <li class="menu" :style="{ width: menuWidth + 'px' }">
-                        <span class="menu-title">菜单名称</span>
-                    </li>
-                    <li class="menu" :style="{ width: menuWidth + 'px' }">
+                    <li v-if="menus.length < maxMenuCount" class="menu" @click="addMenu" key="add-menu">
                         <i class="el-icon-plus"></i>
                     </li>
-                </ul>
-            </div>
+                </transition-group>
+            </draggable>
             <div class="op">
-                <el-button>菜单排序</el-button>
+                <el-button @click="orderMenu">{{ dragBtnText }}</el-button>
             </div>
         </el-col>
         <el-col :span="12" class="right">
-            <div class="menu-info">
-                <section class="top">
-                    <p class="title">子菜单名称</p>
-                    <el-button type="text" class="del">删除子菜单</el-button>
-                </section>
-                <el-form label-width="85px" label-position="left" v-model="menu">
-                    <el-form-item label="子菜单名称">
-                        <el-input placeholder="不超过 8 个字"></el-input>
-                    </el-form-item>
-                    <el-form-item label="子菜单内容">
-                        <el-radio-group v-model="menu.type">
-                            <el-radio label="message">发送消息</el-radio>
-                            <el-radio label="link">跳转链接</el-radio>
-                        </el-radio-group>
-                    </el-form-item>
-                    <el-form-item label="" label-width="0" v-show="menu.type == 'message'">
-                        <el-tabs v-model="menu.messageType" type="card">
-                            <el-tab-pane name="text">
-                                <span slot="label">
-                                    <i class="el-icon-edit-outline"></i> 文字</span>
-                                <el-input type="textarea" :rows="6" placeholder="不超过 500 字"></el-input>
-                            </el-tab-pane>
-                            <el-tab-pane name="article">
-                                <span slot="label">
-                                    <i class="el-icon-document"></i> 图文</span>
-                                <operations v-show="!menu.article" :items="opArticleItems" @click="clickOpArticle"></operations>
-                                <article-card v-if="menu.article" :main="menu.article" :sub="menu.article.sub">
-                                    <div slot="bottom-ops" class="bottom-ops">
-                                        <el-button type="text" @click="removeArticle">删除</el-button>
-                                    </div>
-                                </article-card>
-                            </el-tab-pane>
-                            <el-tab-pane name="image">
-                                <span slot="label">
-                                    <i class="el-icon-picture-outline"></i> 图片</span>
-                                <operations v-show="!menu.image" :items="opImageItems" @click="clickOpImage"></operations>
-                                <div v-if="menu.image" class="image-pane">
-                                    <img :src="menu.image">
-                                    <el-button type="text" @click="removeImage">删除</el-button>
-                                </div>
-                            </el-tab-pane>
-                        </el-tabs>
-                    </el-form-item>
-                    <el-form-item label="页面地址" v-show="menu.type == 'link'">
-                        <el-input type="textarea" :rows="4" placeholder="订阅者点击该子菜单会跳到该链接，格式：http://www.example.com"></el-input>
-                    </el-form-item>
-                </el-form>
+            <div v-if="!draggable">
+                <div class="menu-info">
+                    <section class="top">
+                        <p class="title">{{ activeItem.name }}</p>
+                        <el-button type="text" class="del" @click="removeMenu">删除{{ menuLabel }}</el-button>
+                    </section>
+                    <el-form label-width="85px" label-position="left" v-model="activeItem">
+                        <el-form-item :label="menuLabel + '名称'">
+                            <el-input placeholder="不超过 8 个字" v-model="activeItem.name"></el-input>
+                        </el-form-item>
+                        <div v-if="!activedHasSubMenu">
+                            <el-form-item :label="menuLabel + '内容'">
+                                <el-radio-group v-model="activeItem.type">
+                                    <el-radio label="message">发送消息</el-radio>
+                                    <el-radio label="link">跳转链接</el-radio>
+                                </el-radio-group>
+                            </el-form-item>
+                            <el-form-item label="" label-width="0" v-show="activeItem.type == 'message'">
+                                <el-tabs v-model="activeItem.messageType" type="card">
+                                    <el-tab-pane name="text">
+                                        <span slot="label">
+                                            <i class="el-icon-edit-outline"></i> 文字</span>
+                                        <el-input type="textarea" :rows="6" placeholder="不超过 500 字" v-model="activeItem.text"></el-input>
+                                    </el-tab-pane>
+                                    <el-tab-pane name="article">
+                                        <span slot="label">
+                                            <i class="el-icon-document"></i> 图文</span>
+                                        <operations v-show="!activeItem.article" :items="opArticleItems" @click="clickOpArticle"></operations>
+                                        <article-card v-if="activeItem.article" :main="activeItem.article" :sub="activeItem.article.sub">
+                                            <div slot="bottom-ops" class="bottom-ops">
+                                                <el-button type="text" @click="removeArticle">删除</el-button>
+                                            </div>
+                                        </article-card>
+                                    </el-tab-pane>
+                                    <el-tab-pane name="image">
+                                        <span slot="label">
+                                            <i class="el-icon-picture-outline"></i> 图片</span>
+                                        <operations v-show="!activeItem.image" :items="opImageItems" @click="clickOpImage"></operations>
+                                        <div v-if="activeItem.image" class="image-pane">
+                                            <img :src="activeItem.image">
+                                            <el-button type="text" @click="removeImage">删除</el-button>
+                                        </div>
+                                    </el-tab-pane>
+                                </el-tabs>
+                            </el-form-item>
+                            <el-form-item label="页面地址" v-show="activeItem.type == 'link'">
+                                <el-input type="textarea" :rows="4" v-model="activeItem.link" placeholder="订阅者点击该子菜单会跳到该链接，格式：http://www.example.com"></el-input>
+                            </el-form-item>
+                        </div>
+                    </el-form>
+                </div>
+                <div class="op">
+                    <el-button type="primary">保存并发布</el-button>
+                </div>
             </div>
-            <div class="op">
-                <el-button type="primary">保存并发布</el-button>
+            <div v-else class="dragtip">
+                请通过拖拽左边的菜单进行排序
             </div>
         </el-col>
     </el-row>
@@ -91,17 +104,24 @@
 <script>
 import Operations from '@/components/Operations'
 import ArticleCard from '@/components/ArticleCard'
+import _ from 'lodash'
+import { empty } from '@/lib/util'
+import Draggable from 'vuedraggable'
 
 export default {
     components: {
         Operations,
-        ArticleCard
+        ArticleCard,
+        Draggable
     },
     data() {
         return {
-            menuCount: 3,
+            activeMenuIndex: 0,
+            activeSubMenuIndex: 0,
             maxMenuCount: 3,
             maxSubMenuCount: 5,
+            draggable: false,
+            dragBtnText: '菜单排序',
             opArticleItems: [
                 { key: 'choose-article', label: '从素材库中选择' },
                 { key: 'new-article', label: '新建图文消息' }
@@ -112,24 +132,9 @@ export default {
             ],
             menus: [
                 {
-                    key: '111',
-                    name: '会员',
-                    type: 'link',
-                    link: 'http://www.baidu.com'
-                },
-                {
-                    key: '121',
-                    name: '签到',
-                    type: 'message',
-                    messageType: 'text',
-                    text: '恭喜你，签到成功！'
-                },
-                {
-                    key: '123',
-                    name: '社区',
+                    name: '社区服务',
                     children: [
                         {
-                            key: '12345',
                             name: '服务预约',
                             type: 'message',
                             messageType: 'article',
@@ -160,37 +165,127 @@ export default {
                             }
                         },
                         {
-                            key: '12346',
-                            name: '历史上点今天',
+                            name: '历史上点今天等等',
                             type: 'message',
                             messageType: 'image',
-                            image: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1513616139261&di=3081f45f67bf0b823a25479fc973038a&imgtype=0&src=http%3A%2F%2Fwww.zhlzw.com%2FUploadFiles%2FArticle_UploadFiles%2F201204%2F20120412123926750.jpg'
+                            image:
+                                'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1513616139261&di=3081f45f67bf0b823a25479fc973038a&imgtype=0&src=http%3A%2F%2Fwww.zhlzw.com%2FUploadFiles%2FArticle_UploadFiles%2F201204%2F20120412123926750.jpg'
                         }
                     ]
+                },
+                {
+                    name: '签到',
+                    type: 'message',
+                    messageType: 'text',
+                    text: '恭喜你，签到成功！'
                 }
-            ]
+            ],
+            menuTemplate: {
+                name: '菜单名称',
+                type: 'message',
+                messageType: 'text',
+                text: ''
+            }
         }
     },
     computed: {
-        menuWidth() {
-            return 274 / this.menuCount
+        menuCount() {
+            return this.menus.length
+        },
+        activeItem() {
+            if (this.activeMenuIndex === -1) {
+                return {}
+            }
+
+            let menu = this.menus[this.activeMenuIndex]
+
+            if (menu.children && this.activeSubMenuIndex !== -1 && menu.children[this.activeSubMenuIndex]) {
+                menu = menu.children[this.activeSubMenuIndex]
+            }
+
+            return menu
+        },
+        activeMenuType() {
+            return this.activeSubMenuIndex === -1 ? 'menu' : 'subMenu'
+        },
+        activedHasSubMenu() {
+            return this.activeMenuType === 'menu' && this.activeItem.children && this.activeItem.children.length
+        },
+        menuLabel() {
+            return this.activeSubMenuIndex === -1 ? '菜单' : '子菜单'
+        },
+        dragOptions() {
+            return {
+                disabled: !this.draggable
+            }
         }
     },
     methods: {
-        clickOpArticle(item) {
-            console.log(item)
-        },
+        clickOpArticle(item) {},
         clickOpImage(item) {},
         removeArticle() {
             this.menu.article = null
         },
         removeImage() {
             this.menu.image = ''
+        },
+        addSubMenu(menuIndex) {
+            let menu = this.menus[menuIndex]
+            !menu.children && this.$set(menu, 'children', [])
+            menu.children.unshift(_.cloneDeep(this.menuTemplate))
+            this.activeSubMenuIndex = 0
+        },
+        addMenu() {
+            this.menus.push(_.cloneDeep(this.menuTemplate))
+            this.clickMenu(this.menus.length - 1)
+        },
+        orderMenu() {
+            this.draggable = !this.draggable
+            this.dragBtnText = this.draggable ? '完成' : '菜单排序'
+        },
+        clickMenu(index) {
+            this.activeMenuIndex = index
+            this.resetSubMenuIndex()
+        },
+        clickSubMenu(subIndex) {
+            this.activeSubMenuIndex = subIndex
+        },
+        removeMenu() {
+            this.$confirm(`确定删除${this.menuLabel} ${this.activeItem.name} 吗？`)
+            .then(() => {
+                if (this.activeMenuType === 'menu') {
+                    this.menus.splice(this.activeMenuIndex, 1)
+                    this.initMenuIndex()
+                } else {
+                    this.menus[this.activeMenuIndex].children.splice(this.activeSubMenuIndex, 1)
+                    this.initSubMenuIndex()
+                }
+            })
+            .catch(() => {})
+        },
+        initMenuIndex() {
+            this.activeMenuIndex = empty(this.menus) ? -1 : 0
+        },
+        initSubMenuIndex() {
+            this.activeSubMenuIndex = empty(this.menus[this.activeMenuIndex].children) ? -1 : this.menus[this.activeMenuIndex].children.length - 1
+        },
+        resetSubMenuIndex() {
+            this.activeSubMenuIndex = -1
+        },
+        onMove({relatedContext, draggedContext}) {
+            if (!relatedContext.element || !draggedContext.element) {
+                return false
+            }
+
+            return true
         }
+    },
+    created() {
+        this.initMenuIndex()
+        this.resetSubMenuIndex()
     }
 }
 </script>
-
 
 <style lang="scss">
 @import 'src/styles/variable.scss';
@@ -206,6 +301,8 @@ export default {
         background-origin: padding-box;
         .footer {
             position: absolute;
+            display: flex;
+            display: -webkit-flex;
             box-sizing: border-box;
             height: 51px;
             line-height: 50px;
@@ -219,6 +316,8 @@ export default {
             background-origin: padding-box;
             .menu {
                 position: relative;
+                flex: 1;
+                min-width: 0;
                 box-sizing: border-box;
                 float: left;
                 height: 100%;
@@ -230,7 +329,12 @@ export default {
                     border-right: 0;
                 }
                 .menu-title {
-                    &:hover {
+                    display: inline-block;
+                    height: 100%;
+                    width: 100%;
+                    @include ellipsis;
+                    @include no-user-select;
+                    &:hover, &.active {
                         color: $font-main;
                     }
                 }
@@ -239,20 +343,15 @@ export default {
                     bottom: 65px;
                     width: 100%;
                     border: 1px solid $wx-menu-border;
+                    border-bottom: 0;
                     text-align: center;
-
-                    @include arrow($size: 12px, $border-color: $wx-menu-border, $direction: bottom-center, $pos-bottom: -8px);
-
+                    @include arrow($size: 12px, $border-color: $wx-menu-border, $direction: bottom-center, $pos-bottom: -6px);
                     .sub-title {
-                        span {
-                            display: inline-block;
-                            width: 80%;
-                            border-bottom: 1px solid $wx-menu-border;
-                        }
-                        &:last-child span {
-                            border-bottom: 0;
-                        }
-                        &:hover {
+                        border-bottom: 1px solid $wx-menu-border;
+                        padding: 0 $padding-five;
+                        @include no-user-select;
+                        @include ellipsis;
+                        &:hover, &.active {
                             color: $font-main;
                         }
                     }
@@ -270,6 +369,7 @@ export default {
 }
 .right {
     padding: 0 $padding-two;
+    min-height: 582px;
     .menu-info {
         border: 1px solid $wx-menu-border;
         min-height: 582px;
@@ -310,6 +410,13 @@ export default {
     }
     .op {
         text-align: left;
+    }
+    .dragtip {
+        color: $font-aide;
+        height: 582px;
+        line-height: 582px;
+        text-align: center;
+        border: 1px solid $wx-menu-border;
     }
 }
 .op {
