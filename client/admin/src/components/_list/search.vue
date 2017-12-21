@@ -53,8 +53,7 @@ export default {
                     ) {
                         return false
                     }
-
-                    // 隐藏于必须指定 label
+                    
                     if (
                         item['type'] === 'hidden' &&
                         typeof item['value'] === 'undefined'

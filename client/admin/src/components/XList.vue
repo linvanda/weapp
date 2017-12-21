@@ -56,7 +56,7 @@
         </section>
         <section v-if="pagination" class="pagination">
             <el-pagination background layout="total, prev, pager, next" :total="total" :page-size="pageSize" :current-page.sync="page" @current-change="pageChange">
-        </el-pagination>
+            </el-pagination>
         </section>
     </div>
 </template>

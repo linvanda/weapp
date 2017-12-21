@@ -36,7 +36,6 @@ export default {
     },
     methods: {
         change() {
-            // 和 dom 使用同一个过滤器，保证数据的一致性
             let data = [
                 this.innerMin,
                 this.innerMax

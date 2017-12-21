@@ -78,7 +78,7 @@
                                             <i class="el-icon-picture-outline"></i> 图片</span>
                                         <operations v-show="!activeItem.image" :items="opImageItems" @click="clickOpImage"></operations>
                                         <div v-if="activeItem.image" class="image-pane">
-                                            <img :src="activeItem.image">
+                                            <img :src="activeItem.image.src">
                                             <el-button type="text" @click="removeImage">删除</el-button>
                                         </div>
                                     </el-tab-pane>
@@ -97,7 +97,8 @@
             <div v-else class="dragtip">
                 请通过拖拽左边的菜单进行排序
             </div>
-            <article-choose :visible.sync="chooseArticleVisible"></article-choose>
+            <article-choose :visible.sync="chooseArticleVisible" :selectedArticles.sync="activeItem.article"></article-choose>
+            <image-choose :visible.sync="chooseImageVisible" :selectedImages.sync="activeItem.image"></image-choose>
         </el-col>
     </el-row>
 </template>
@@ -106,16 +107,18 @@
 import Operations from '@/components/Operations'
 import ArticleCard from '@/components/ArticleCard'
 import ArticleChoose from '@/components/ArticleChoose'
-import _ from 'lodash'
-import { empty } from '@/lib/util'
+import ImageChoose from '@/components/ImageChoose'
 import Draggable from 'vuedraggable'
+import { empty } from '@/lib/util'
+import _ from 'lodash'
 
 export default {
     components: {
         Operations,
         ArticleCard,
         Draggable,
-        ArticleChoose
+        ArticleChoose,
+        ImageChoose
     },
     data() {
         return {
@@ -130,7 +133,14 @@ export default {
                 { key: 'new-article', label: '新建图文消息' }
             ],
             opImageItems: [
-                { key: 'upload-image', label: '上传图片' },
+                { 
+                    key: 'upload-image', 
+                    label: '上传图片',
+                    type: 'upload',
+                    success: (response) => {
+                        this.$set(this.activeItem, 'image', response.data[0])
+                    }
+                },
                 { key: 'choose-image', label: '从素材库中选择' }
             ],
             menus: [
@@ -143,7 +153,7 @@ export default {
                             messageType: 'article',
                             article: {
                                 id: '1234',
-                                image:
+                                image: 
                                     'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1513616139261&di=3081f45f67bf0b823a25479fc973038a&imgtype=0&src=http%3A%2F%2Fwww.zhlzw.com%2FUploadFiles%2FArticle_UploadFiles%2F201204%2F20120412123926750.jpg',
                                 title:
                                     '测试图文测试图文测试图文测试图文测试图文测试图文测试图文测试图文测试图文测试图文测试图文',
@@ -171,8 +181,11 @@ export default {
                             name: '历史上点今天等等',
                             type: 'message',
                             messageType: 'image',
-                            image:
+                            image: {
+                                id: '131324',
+                                src: 
                                 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1513616139261&di=3081f45f67bf0b823a25479fc973038a&imgtype=0&src=http%3A%2F%2Fwww.zhlzw.com%2FUploadFiles%2FArticle_UploadFiles%2F201204%2F20120412123926750.jpg'
+                            }
                         }
                     ]
                 },
@@ -189,7 +202,8 @@ export default {
                 messageType: 'text',
                 text: ''
             },
-            chooseArticleVisible: true
+            chooseArticleVisible: false,
+            chooseImageVisible: false
         }
     },
     computed: {
@@ -230,12 +244,16 @@ export default {
                 this.chooseArticleVisible = true
             }
         },
-        clickOpImage(item) {},
+        clickOpImage(item) {
+            if (item.key === 'choose-image') {
+                this.chooseImageVisible = true
+            }
+        },
         removeArticle() {
-            this.menu.article = null
+            this.activeItem.article = null
         },
         removeImage() {
-            this.menu.image = ''
+            this.activeItem.image = null
         },
         addSubMenu(menuIndex) {
             let menu = this.menus[menuIndex]
@@ -300,6 +318,7 @@ export default {
 @import 'src/styles/mixin.scss';
 
 .left {
+    min-width: 325px;
     .mobile {
         position: relative;
         width: 319px;

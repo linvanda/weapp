@@ -12,6 +12,8 @@ export default {
 </script>
 
 <style lang="scss">
+@import 'src/styles/variable.scss';
+
 body {
     font-family: "Helvetica Neue", "Hiragino Sans GB", "Microsoft YaHei", "\9ED1\4F53", Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -88,5 +90,11 @@ abbr,acronym {
         margin-left: 0;
         margin-right: 30px;
     }
+}
+.empty {
+    text-align: center;
+    color: $font-aide;
+    padding-top: $padding-three;
+    padding-bottom: $padding-three;
 }
 </style>

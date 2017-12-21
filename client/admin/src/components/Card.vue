@@ -1,7 +1,7 @@
 <template>
-    <div class="card" :style="{ marginBottom: marginBottom }">
+    <div class="card" :style="{ marginBottom: marginBottom }" :class="{ border: hasBorder, radius: hasRadius }">
         <div class="img" :style="{ height: imageHeight }"><img :src="image"></div>
-        <div class="text">
+        <div v-if="showText" class="text">
             <p class="title">{{ title }}</p>
             <div class="bottom">
                 <time class="time">{{ tip }}</time>
@@ -24,8 +24,7 @@ export default {
             required: true
         },
         title: {
-            type: String,
-            required: true
+            type: String
         },
         tip: {
             type: String,
@@ -42,6 +41,19 @@ export default {
         mask: {
             type: Boolean,
             default: false
+        },
+        hasBorder: {
+            type: Boolean,
+            default: true
+        },
+        hasRadius: {
+            type: Boolean,
+            default: true
+        }
+    },
+    computed: {
+        showText() {
+            return this.title || this.tip
         }
     }
 }
@@ -53,8 +65,6 @@ export default {
 
 .card {
     position: relative;
-    border: 1px solid $border-four;
-    border-radius: 4px;
     overflow: hidden;
     .img {
         width: 100%;
@@ -70,11 +80,18 @@ export default {
         .title {
             color: $font-main;
             font-size: $font-size-small;
+            @include ellipsis;
         }
         .time {
             color: $font-aide;
             font-size: $font-size-xsmall;
         }
     }
+}
+.border {
+    border: 1px solid $border-four;
+}
+.radius {
+    border-radius: 4px;
 }
 </style>

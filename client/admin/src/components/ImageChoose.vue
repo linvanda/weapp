@@ -2,26 +2,20 @@
     <el-dialog width="60%" :title="title" :visible="visible" @open="open" @close="cancel" :close-on-click-modal="false" :close-on-press-escape="false">
         <div v-loading="$store.state.loading" class="body">
             <div class="header">
-                <el-form inline size="small">
-                    <el-form-item>
-                        <el-input v-model="filters.title" placeholder="输入图文标题搜索"></el-input>
-                    </el-form-item>
-                    <el-form-item><el-button @click="search">搜索</el-button></el-form-item>
-                </el-form>
+                <el-button icon="el-icon-upload">上传图片</el-button>
             </div>
             <el-row :gutter="gutter" class="content">
-                <el-col :span="24/col" v-for="article in articles" :key="article.id">
+                <el-col :span="24/col" v-for="image in images" :key="image.id">
                     <x-card 
-                        class="article-card"
-                        :image="article.image" 
-                        :title="article.title" 
-                        :tip="article.date" 
-                        :mask="innerSelectedArticles.some(item => item.id === article.id)" 
+                        class="article-card" 
+                        :image="image.src" 
+                        :mask="innerSelectedImages.some(item => item.id === image.id)" 
+                        :hasBorder="false"
                         :hasRadius="false"
-                        @click.native="clickCard(article)">
+                        @click.native="clickCard(image)">
                     </x-card>
                 </el-col>
-                <el-col :span="24" v-if="!articles.length" class="empty">暂无数据</el-col>
+                <el-col :span="24" v-if="!images.length" class="empty">暂无数据</el-col>
             </el-row>
             <div class="footer">
                 <el-pagination layout="total, prev, pager, next" :total="total" :page-size="pageSize" :current-page.sync="page" @current-change="pageChange">
@@ -48,11 +42,11 @@ export default {
     props: {
         title: {
             type: String,
-            default: '选择图文'
+            default: '选择图片'
         },
         api: {
             type: [String, Array],
-            default: 'article.list'
+            default: 'media.imageList'
         },
         pageSize: {
             type: Number,
@@ -74,7 +68,7 @@ export default {
             type: Number,
             default: 1
         },
-        selectedArticles: {
+        selectedImages: {
             type: [Array, Object],
             default() {
                 return []
@@ -83,11 +77,10 @@ export default {
     },
     data() {
         return {
-            articles: [],
-            innerSelectedArticles: [],
+            images: [],
+            innerSelectedImages: [],
             total: 0,
-            page: 1,
-            filters: { title: '' }
+            page: 1
         }
     },
     computed: {
@@ -109,54 +102,53 @@ export default {
                             page: this.page,
                             pageSize: this.pageSize
                         },
-                        this.innerAPI[1],
-                        this.filters
+                        this.innerAPI[1]
                     )
                 )
                 .then(data => {
-                    this.articles = data.data
+                    this.images = data.data
                     this.total = data.total
                 })
         },
         open() {
             this.fetchData().then(() => {
-                let selArticles = this.selectedArticles || []
-                if (!isType(selArticles, Array)) {
-                    selArticles = [selArticles]
+                let selImages = this.selectedImages || []
+                if (!isType(selImages, Array)) {
+                    selImages = [selImages]
                 }
-                this.innerSelectedArticles = _.cloneDeep(selArticles)
+                this.innerSelectedImages = _.cloneDeep(selImages)
             })
         },
         pageChange() {
             this.fetchData()
         },
         search() {
-            this.innerSelectedArticles = []
+            this.innerSelectedImages = []
             this.fetchData()
         },
         cancel() {
             this.$emit('update:visible', false)
         },
         ok() {
-            let selected = this.innerSelectedArticles
+            let selected = this.innerSelectedImages
             if (this.max === 1) {
                 selected = selected.length ? selected[0] : null
             }
 
             this.$emit('update:visible', false)
-            this.$emit('update:selectedArticles', selected)
+            this.$emit('update:selectedImages', selected)
             this.$emit('ok', selected)
         },
-        clickCard(article) {
-            const index = this.indexOf(this.innerSelectedArticles, article)
+        clickCard(image) {
+            const index = this.indexOf(this.innerSelectedImages, image)
             if (index !== -1) {
-                this.innerSelectedArticles.splice(index, 1)
+                this.innerSelectedImages.splice(index, 1)
             } else {
                 if (this.max === 1) {
                     // 单选
-                    this.innerSelectedArticles = [_.cloneDeep(article)]
-                } else if (this.innerSelectedArticles.length < this.max) {
-                    this.innerSelectedArticles.push(_.cloneDeep(article))
+                    this.innerSelectedImages = [_.cloneDeep(image)]
+                } else if (this.innerSelectedImages.length < this.max) {
+                    this.innerSelectedImages.push(_.cloneDeep(image))
                 }
             }
         },
@@ -179,6 +171,11 @@ export default {
 
 .body {
     width: 100%;
+    .header {
+        padding-bottom: $padding-two;
+        padding-right: $padding-three;
+        text-align: right;
+    }
     .content {
         width: 100%;
         height: 550px;

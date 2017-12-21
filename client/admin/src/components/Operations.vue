@@ -1,7 +1,27 @@
 <template>
     <ul class="plus-ops" :style="{ height, padding }">
         <li v-for="item in items" :key="item.key" class="op-item">
-            <div class="op-content" @click="click(item)">
+            <!-- 文件/图片上传，此处不负责上传后图片的展示，且每次上传完成后都会清空 file-list -->
+            <el-upload 
+                v-if="item.type && item.type === 'upload'"
+                :ref="item.key"
+                :action="uploadUrl" 
+                :show-file-list="false" 
+                :accept="item.accept || ''" 
+                :multiple="item.limit && item.limit > 1 ? true : true"
+                :limit="item.limit || 3"
+                :before-upload="beforeUpload"
+                :on-exceed="imageExceed(item.limit || 1)"
+                :on-success="successUpload(item)"
+                :on-error="errorUpload"
+                >
+                <div class="op-content" @click="click(item)" v-loading="uploadLoading">
+                    <i class="el-icon-plus"></i>
+                    <p>{{ item.label }}</p>
+                </div>
+            </el-upload>
+            <!-- 普通操作 -->
+            <div v-else class="op-content" @click="click(item)">
                 <i class="el-icon-plus"></i>
                 <p>{{ item.label }}</p>
             </div>
@@ -34,9 +54,41 @@ export default {
             default: 0
         }
     },
+    data() {
+        return {
+            uploadLoading: false,
+            uploadUrl: global.$conf.env.UPLOAD_URL
+        }
+    },
     methods: {
         click(item) {
             this.$emit('click', item)
+        },
+        beforeUpload() {
+            this.uploadLoading = true
+        },
+        successUpload(item) {
+            return (response) => {
+                item.success && item.success(response)
+                this.clearUpload(item.key)
+            }
+        },
+        errorUpload(item) {
+            return (error) => {
+                console.log('upload error:', error)
+                this.$message.error('文件上传失败，请重试')
+                item.error && item.error(error)
+                this.clearUpload(item.key)
+            }
+        },
+        imageExceed(limit) {
+            return () => {
+                this.$message.error(`文件数量超限，最多只能上传 ${limit} 个文件`)
+            }
+        },
+        clearUpload(name) {
+            this.uploadLoading = false
+            this.$refs[name][0].clearFiles()
         }
     }
 }
