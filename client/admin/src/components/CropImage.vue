@@ -1,32 +1,23 @@
 <template>
-    <image-upload
-        v-loading.fullscreen.lock="loading"
-        crop="local"
-        :crop-ratio="ratio"
-        :crop-btn="cropBtn"
-        :url="uploadUrl"
-        :max-file-size="maxFileSize"
-        input-accept="image/jpg, image/jpeg, image/gif, image/png"
-        extensions="png,jpg,jpeg,gif"
-        :compress="compress"
-        @imagechanged="imageChanged"
-        @imageuploaded="imageUploaded"
-        @errorhandle="imageError"
-        >
-        <slot>
-            <el-button icon="el-icon-upload" type="primary">选择图片</el-button>
-        </slot>
-    </image-upload>
+    <div>
+        <el-upload ref="upload" accept="image/jpg, image/jpeg, image/png, image/gif" :action="uploadUrl" :multiple="false" :show-file-list="false" :drag="dragable" :auto-upload="false" :limit="1" :on-success="imageUploaded" :on-error="imageError" :on-change="imageChange">
+            <slot>
+                <el-button type="primary" icon="el-icon-upload">选择图片</el-button>
+            </slot>
+        </el-upload>
+
+        <div class="cropper">
+            <img id="cropperimage" :src="origImage">
+            <div id="preview"></div>
+        </div>
+    </div>
 </template>
 
 <script>
-import ImageUpload from 'vue-core-image-upload'
+import Cropper from 'cropperjs'
 
 // 图片裁切上传
 export default {
-    components: {
-        ImageUpload
-    },
     props: {
         // 文件最大尺寸
         maxFileSize: {
@@ -42,30 +33,82 @@ export default {
         compress: {
             type: Number,
             default: 40
+        },
+        // 是否支持拖拽上传
+        dragable: {
+            type: Boolean,
+            default: false
         }
     },
     data() {
         return {
+            origImage: '/static/img/meinv.jpg',
+            cropImage: '',
+            showCropper: false,
             loading: false,
             uploadUrl: global.$conf.env.UPLOAD_URL,
             cropBtn: { ok: '裁切并上传', cancel: '取消' }
         }
     },
     methods: {
+        // 上传到服务器成功
         imageUploaded(result) {
-            this.loading = false
-            this.$emit('success', result)
+            console.log(result, '=')
         },
+        // 上传到服务器失败
         imageError(error) {
             this.loading = false
             console.log('image upload error:', error)
             this.$message.error('图片上传失败，请重试')
             this.$emit('error', error)
         },
-        imageChanged() {
-            this.loading = true
+        imageChange(file) {
+            this.origImage = file.url
+            this.newCropper()
+
+            this.$refs.upload.clearFiles()
+        },
+        cropImageEvent() {
+            this.cropImage = this.$refs.cropper.getCroppedCanvas().toDataURL()
+        },
+        newCropper() {
+            const cropper = new Cropper(document.getElementById('cropperimage'), {
+                aspectRatio: 16 / 9,
+                viewMode: 2,
+                preview: '#preview',
+                minCropBoxWidth: 50,
+                minCropBoxHeight: 50,
+                ready() {
+                    console.log('ready')
+                },
+                crop: function(e) {
+                    console.log(e.detail.x)
+                    console.log(e.detail.y)
+                    console.log(e.detail.width)
+                    console.log(e.detail.height)
+                    console.log(e.detail.rotate)
+                    console.log(e.detail.scaleX)
+                    console.log(e.detail.scaleY)
+                },
+                cropend() {
+
+                }
+            })
+            cropper.crop()
         }
+    },
+    created() {
+        setTimeout(() => {
+            this.newCropper()
+        }, 1000)
     }
 }
 </script>
 
+<style lang="scss" scoped>
+.cropper {
+    img {
+        width: 100%;
+    }
+}
+</style>
