@@ -57,7 +57,7 @@
                                 </el-radio-group>
                             </el-form-item>
                             <el-form-item label="" label-width="0" v-show="activeItem.type == 'message'">
-                                <el-tabs v-model="activeItem.messageType" type="card">
+                                <el-tabs v-model="activeItem.messageType">
                                     <el-tab-pane name="text">
                                         <span slot="label">
                                             <i class="el-icon-edit-outline"></i> 文字</span>

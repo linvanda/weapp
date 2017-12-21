@@ -2,7 +2,7 @@ import Mock from 'mockjs'
 import URI from 'urijs'
 
 Mock.setup({
-  timeout: 1000
+  timeout: 300
 })
 
 Mock.mock(/admin\/media\/images/, 'get', options => {

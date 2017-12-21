@@ -1,5 +1,5 @@
 <template>
-    <el-dialog width="60%" :title="title" :visible="visible" @open="open" @close="cancel" :close-on-click-modal="false" :close-on-press-escape="false">
+    <el-dialog width="60%" :title="title" :visible="visible" @open="open" @close="cancel" :close-on-click-modal="false" :close-on-press-escape="true">
         <div v-loading="$store.state.loading" class="body">
             <div class="header">
                 <el-button icon="el-icon-upload">上传图片</el-button>
