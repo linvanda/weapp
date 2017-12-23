@@ -152,6 +152,7 @@ export default {
         border: 1px solid $border-two;
         min-height: 500px;
         padding: $padding-two;
+        background-color: $border-four;
         .cover-image {
             width: 319px;
             max-height: 176px;

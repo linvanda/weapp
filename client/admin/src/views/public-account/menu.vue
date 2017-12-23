@@ -391,7 +391,7 @@ export default {
             @include clearfix;
         }
 
-        @include arrow($size: 12px, $border-color: $wx-menu-border, $direction: left, $pos-bottom: 20px, $pos-right: -34px);
+        @include arrow($size: 12px, $border-color: $wx-menu-border, $direction: left, $pos-bottom: 20px, $pos-right: -34px, $bg-color: $border-four);
     }
     .op {
         text-align: center;
@@ -406,6 +406,7 @@ export default {
         position: relative;
         padding: $padding-two;
         box-sizing: border-box;
+        background-color: $border-four;
         .top {
             width: 100%;
             overflow: hidden;
