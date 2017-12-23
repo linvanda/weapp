@@ -5,8 +5,8 @@
                 <template v-for="(art, index) in article">
                     <li 
                         v-if="index === 0" 
-                        :class="{ main: true, active: activeIndex === index }" 
-                        :style="{ height: mainHeight }" :key="index"
+                        class="main"
+                        :style="{ height: mainHeight, border: activeIndex === index ? '2px solid' + themeColor : 0 }" :key="index"
                         @click.stop="clickItem(index)">
                             <img :src="art.image">
                             <p class="title">{{ art.title }}</p>
@@ -14,7 +14,8 @@
                     </li>
                     <li 
                         v-else-if="showSub" 
-                        :class="{ sub: true, active: activeIndex === index }" 
+                        class="sub"
+                        :style="{ border: activeIndex === index ? '2px solid' + themeColor : 0 }"
                         :key="index"
                         @click.stop="clickItem(index)">
                             <p class="sub-title">{{ art.title }}</p>
@@ -75,6 +76,11 @@ export default {
         activeIndex: {
             type: Number,
             default: -1
+        }
+    },
+    data() {
+        return {
+            themeColor: this.$store.getters.theme.color
         }
     },
     computed: {
