@@ -10,10 +10,10 @@ Mock.mock(/admin\/media\/images/, 'get', options => {
   let images = []
   for (let i = 0; i < 20; i++) {
     images.push(
-      {
-          id: params['page'] + '-' + i,
-          src: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1513616139261&di=3081f45f67bf0b823a25479fc973038a&imgtype=0&src=http%3A%2F%2Fwww.zhlzw.com%2FUploadFiles%2FArticle_UploadFiles%2F201204%2F20120412123926750.jpg'
-      }
+      Mock.mock({
+        id: params['page'] + '-' + i,
+        src: '@image'
+      })
     )
   }
 
@@ -32,7 +32,8 @@ Mock.mock(/admin\/media\/images/, 'post', () => {
     data: [
       {
         id: '1234',
-        src: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1513616139261&di=3081f45f67bf0b823a25479fc973038a&imgtype=0&src=http%3A%2F%2Fwww.zhlzw.com%2FUploadFiles%2FArticle_UploadFiles%2F201204%2F20120412123926750.jpg'
+        src:
+          'http://imgsrc.baidu.com/imgad/pic/item/5ab5c9ea15ce36d32ae0f90a31f33a87e950b120.jpg'
       }
     ]
   }

@@ -1,6 +1,6 @@
 <template>
     <el-dialog width="60%" :title="title" :visible="visible" @open="open" @close="cancel" :close-on-click-modal="false" :close-on-press-escape="true">
-        <div v-loading="$store.state.loading" class="body">
+        <div v-loading="loading" class="body">
             <div class="header">
                 <el-button icon="el-icon-upload">上传图片</el-button>
             </div>
@@ -69,10 +69,14 @@ export default {
             default: 1
         },
         selectedImages: {
-            type: [Array, Object],
+            type: [Array, Object, String],
             default() {
                 return []
             }
+        },
+        returnType: {
+            type: String,
+            default: 'object' // object, string
         }
     },
     data() {
@@ -80,7 +84,8 @@ export default {
             images: [],
             innerSelectedImages: [],
             total: 0,
-            page: 1
+            page: 1,
+            loading: false
         }
     },
     computed: {
@@ -94,7 +99,10 @@ export default {
     },
     methods: {
         fetchData() {
-            return API.loading()
+            this.loading = true
+            return API.finally(() => {
+                    this.loading = false
+                })
                 .invoke(
                     this.innerAPI[0],
                     Object.assign(
@@ -135,6 +143,10 @@ export default {
                 selected = selected.length ? selected[0] : null
             }
 
+            if (this.returnType === 'string') {
+                selected = selected.src
+            }
+
             this.$emit('update:visible', false)
             this.$emit('update:selectedImages', selected)
             this.$emit('ok', selected)
@@ -170,7 +182,6 @@ export default {
 @import 'src/styles/mixin.scss';
 
 .body {
-    width: 100%;
     .header {
         padding-bottom: $padding-two;
         padding-right: $padding-three;

@@ -7,6 +7,6 @@ import Mock from 'mockjs'
 Mock.mock(/setting\/[^/]+$/, 'get', {
     code: 1000,
     data: {
-        theme: 'purple'
+        theme: 'blue'
     }
 })

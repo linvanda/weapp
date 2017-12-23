@@ -94,7 +94,7 @@ export default {
 @import 'src/styles/variable.scss';
 
 .el-header {
-    border-bottom: 1px solid $light-gray;
+    border-bottom: 1px solid $border-two;
     .el-breadcrumb {
         height: 100%;
         line-height: 80px;
@@ -108,7 +108,7 @@ export default {
             left:0;
             display: inline-block;
             position: absolute!important;
-            color: #5a5e66;
+            color: $font-aide;
             font-size: 14px;
         }
         .el-dropdown {

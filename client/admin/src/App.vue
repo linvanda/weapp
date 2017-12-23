@@ -60,7 +60,12 @@ abbr,acronym {
 	.fa{
 		width:20px;
 		line-height: 40px;
-	}
+    }
+}
+.short-form {
+    .el-input, .el-textarea {
+        width: 60%;
+    }
 }
 #app{
 	padding-bottom: 80px;
@@ -69,8 +74,13 @@ abbr,acronym {
 	text-align: center;
 	padding-top:40px;
 	.el-button{
-		width: 120px;
+		width: $btn-big;
 	}
+}
+.el-button {
+    &.large {
+        width: $btn-big;
+    }
 }
 .full-transfer {
 	.el-transfer{

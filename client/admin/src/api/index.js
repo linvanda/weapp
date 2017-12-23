@@ -7,6 +7,7 @@ import http from '@/lib/http'
 let xLoading = false
 let xDoing = false
 let xNoIntercept = false
+let xFinallyCallback = null
 
 /**
  * 配置处理
@@ -223,6 +224,9 @@ function request(url, method, data, config) {
     config['x-no-intercept'] = xNoIntercept
     xNoIntercept = false
 
+    // finally
+    let _xFinallyCallback = xFinallyCallback
+
     return new Promise(resolve => {
         let conf = {
             url,
@@ -241,15 +245,7 @@ function request(url, method, data, config) {
             .then(response => {
                 // 响应拦截
                 return interceptResponse(response).then(response => {
-                    // 停止 loading
-                    config['x-loading'] &&
-                        config['x-loading'] === _loadingFlag &&
-                        store.commit('STOP_LOADING')
-
-                    // 停止 doing
-                    config['x-doing'] &&
-                        config['x-doing'] === _doingFlag &&
-                        store.commit('STOP_DOING')
+                    clean(config, _loadingFlag, _doingFlag, _xFinallyCallback, store)
 
                     resolve(
                         config['x-no-intercept']
@@ -259,20 +255,25 @@ function request(url, method, data, config) {
                 })
             })
             .catch(response => {
-                // 停止 loading
-                const config = response.config
-                config['x-loading'] &&
-                    config['x-loading'] === _loadingFlag &&
-                    store.commit('STOP_LOADING')
-
-                // 停止 doing
-                config['x-doing'] &&
-                    config['x-doing'] === _doingFlag &&
-                    store.commit('STOP_DOING')
+                clean(response.config, _loadingFlag, _doingFlag, _xFinallyCallback, store)
 
                 console.log('api error.url:' + url, response)
             })
     })
+}
+
+function clean(config, _loadingFlag, _doingFlag, _xFinallyCallback, store) {
+    config['x-loading'] &&
+    config['x-loading'] === _loadingFlag &&
+    store.commit('STOP_LOADING')
+
+    // 停止 doing
+    config['x-doing'] &&
+        config['x-doing'] === _doingFlag &&
+        store.commit('STOP_DOING')
+
+    // 执行 finally
+    _xFinallyCallback && _xFinallyCallback()
 }
 
 function error(apiMsg, msg = '接口调用错误') {
@@ -351,6 +352,14 @@ export default {
     // 内部不要拦截业务错误码，由外界自行处理
     noIntercept: function() {
         xNoIntercept = true
+
+        return this
+    },
+    // 无论结果如何都需要执行的逻辑
+    finally(callback) {
+        if (typeof callback === 'function') {
+            xFinallyCallback = callback
+        }
 
         return this
     }

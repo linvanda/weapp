@@ -54,9 +54,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import 'src/styles/variable.scss';
+
 .side-menu {
     min-height: 900px;
-    border-right: 1px solid #edf2fc;
+    border-right: 1px solid $border-two;
 
     .el-menu {
         border-right: 0;

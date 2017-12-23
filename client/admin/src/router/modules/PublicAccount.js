@@ -28,7 +28,7 @@ export default {
         {
             path: 'articles',
             name: 'public-article',
-            title: '文章管理',
+            title: '图文管理',
             isMenu: true,
             component: wrapper,
             redirect: { name: 'public-article-list' },
@@ -36,8 +36,23 @@ export default {
                 {
                     path: 'list',
                     name: 'public-article-list',
-                    title: '文章列表',
+                    title: '图文列表',
+                    isMenu: true,
                     component: _import('public-account/articles/list')
+                },
+                {
+                    path: 'add',
+                    name: 'public-article-add',
+                    title: '添加图文',
+                    isMenu: true,
+                    component: _import('public-account/articles/edit')
+                },
+                {
+                    path: ':id',
+                    name: 'public-article-edit',
+                    title: '编辑图文',
+                    props: true,
+                    component: _import('public-account/articles/edit')
                 }
             ]
         }

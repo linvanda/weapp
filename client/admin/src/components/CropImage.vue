@@ -1,114 +1,149 @@
 <template>
-    <div>
-        <el-upload ref="upload" accept="image/jpg, image/jpeg, image/png, image/gif" :action="uploadUrl" :multiple="false" :show-file-list="false" :drag="dragable" :auto-upload="false" :limit="1" :on-success="imageUploaded" :on-error="imageError" :on-change="imageChange">
+    <div class="cropper-upload">
+        <el-upload ref="upload" :accept="accept" :action="uploadUrl" :data="cropData" :multiple="false" :show-file-list="false" :drag="dragable" :auto-upload="false" :limit="1" :on-success="imageUploaded" :on-error="imageError" :on-exceed="exceed" :on-change="imageChange">
             <slot>
-                <el-button type="primary" icon="el-icon-upload">选择图片</el-button>
+                <el-button type="primary" icon="el-icon-upload">本地上传</el-button>
+                <div v-if="tip" slot="tip" class="el-upload__tip">{{ tip }}</div>
             </slot>
         </el-upload>
-
-        <div class="cropper">
-            <img id="cropperimage" :src="origImage">
-            <div id="preview"></div>
-        </div>
+        <el-dialog title="裁切" top="6vh" :show-close="true" :visible.sync="visible" :fullscreen="false" :close-on-click-modal="false" :before-close="cancel">
+            <div class="img-wrapper" v-loading="loading">
+                <img :src="origImage" id="target" />
+            </div>
+             <span slot="footer" class="dialog-footer">
+                <el-button @click="cancel">取 消</el-button>
+                <el-button type="primary" :disabled="disableUpload" @click="ok">裁切并上传</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 
 <script>
-import Cropper from 'cropperjs'
+import '@/assets/js/jquery.min.js'
+import '@/assets/js/jquery.Jcrop.min.js'
+import '@/assets/css/jquery.Jcrop.min.css'
 
+let cropper
 // 图片裁切上传
 export default {
     props: {
-        // 文件最大尺寸
-        maxFileSize: {
-            type: Number,
-            default: 5242880
-        },
-        // 裁切比例
+        // 裁切比例，如 4 / 3
         ratio: {
-            type: String,
-            default: '1:1'
-        },
-        // 图片压缩比例
-        compress: {
             type: Number,
-            default: 40
+            default: 1
         },
         // 是否支持拖拽上传
         dragable: {
             type: Boolean,
             default: false
+        },
+        // 接收的图片类型
+        accept: {
+            type: String,
+            default: 'image/jpg, image/jpeg, image/png'
+        },
+        // 裁切框最小尺寸
+        minSize: {
+            type: Array,
+            default() {
+                return [100, 100]
+            }
+        },
+        tip: {
+            type: String
         }
     },
     data() {
         return {
-            origImage: '/static/img/meinv.jpg',
-            cropImage: '',
-            showCropper: false,
+            visible: false,
+            origImage: '',
+            cropData: {},
             loading: false,
-            uploadUrl: global.$conf.env.UPLOAD_URL,
-            cropBtn: { ok: '裁切并上传', cancel: '取消' }
+            disableUpload: false,
+            uploadUrl: global.$conf.env.UPLOAD_URL
         }
     },
     methods: {
         // 上传到服务器成功
         imageUploaded(result) {
-            console.log(result, '=')
+            this.loading = false
+            this.reset()
+
+            this.$emit('success', result)
         },
         // 上传到服务器失败
         imageError(error) {
             this.loading = false
+            this.reset()
             console.log('image upload error:', error)
             this.$message.error('图片上传失败，请重试')
+
             this.$emit('error', error)
         },
+        exceed() {
+            this.$message.error('图片数量超出限制')
+        },
         imageChange(file) {
-            this.origImage = file.url
-            this.newCropper()
-
+            if (!file.response) {
+                this.origImage = file.url
+                this.visible = true
+                this.$nextTick(() => {
+                    this.crop() 
+                })
+            }
+        },
+        crop() {
+            /* eslint-disable no-undef */
+            if (!cropper) {
+                $('#target').Jcrop({
+                    aspectRatio: this.ratio,
+                    // 裁切窗口大小
+                    boxWidth: 800,
+                    boxHeight: 800,
+                    minSize: this.minSize,
+                    setSelect: [0, 0, 800, 800],
+                    onSelect: (data) => {
+                        this.cropData = data
+                        this.disableUpload = false
+                    },
+                    onRelease: () => {
+                        this.cropData = {}
+                        this.disableUpload = true
+                    }
+                }, function() {
+                    cropper = this
+                })
+            } else {
+                cropper.setImage(this.origImage)
+                cropper.setSelect([0, 0, 800, 800])
+            }
+        },
+        cancel() {
+            this.reset()
+        },
+        ok() {
+            // 上传
+            this.loading = true
+            this.$refs.upload.submit()
+        },
+        reset() {
             this.$refs.upload.clearFiles()
-        },
-        cropImageEvent() {
-            this.cropImage = this.$refs.cropper.getCroppedCanvas().toDataURL()
-        },
-        newCropper() {
-            const cropper = new Cropper(document.getElementById('cropperimage'), {
-                aspectRatio: 16 / 9,
-                viewMode: 2,
-                preview: '#preview',
-                minCropBoxWidth: 50,
-                minCropBoxHeight: 50,
-                ready() {
-                    console.log('ready')
-                },
-                crop: function(e) {
-                    console.log(e.detail.x)
-                    console.log(e.detail.y)
-                    console.log(e.detail.width)
-                    console.log(e.detail.height)
-                    console.log(e.detail.rotate)
-                    console.log(e.detail.scaleX)
-                    console.log(e.detail.scaleY)
-                },
-                cropend() {
-
-                }
-            })
-            cropper.crop()
+            this.cropData = {}
+            this.visible = false
         }
-    },
-    created() {
-        setTimeout(() => {
-            this.newCropper()
-        }, 1000)
     }
 }
 </script>
 
-<style lang="scss" scoped>
-.cropper {
-    img {
-        width: 100%;
+<style lang="scss">
+.cropper-upload {
+    div.el-dialog {
+        width: 840px!important;
+    }
+    .img-wrapper {
+        height: 60vh;
+        min-height: 600px;
     }
 }
 </style>
+

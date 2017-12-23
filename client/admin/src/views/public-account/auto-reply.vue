@@ -1,6 +1,6 @@
 <template>
     <div>
-        <crop-image></crop-image>
+        <crop-image :ratio="3/2"></crop-image>
     </div>
 </template>
 

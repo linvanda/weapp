@@ -1,6 +1,6 @@
 <template>
     <el-dialog width="60%" :title="title" :visible="visible" @open="open" @close="cancel" :close-on-click-modal="false" :close-on-press-escape="true">
-        <div v-loading="$store.state.loading" class="body">
+        <div v-loading="loading" class="body">
             <div class="header">
                 <el-form inline size="small">
                     <el-form-item>
@@ -13,10 +13,10 @@
                 <el-col :span="24/col" v-for="article in articles" :key="article.id">
                     <x-card 
                         class="article-card"
-                        :image="article.image" 
-                        :title="article.title" 
-                        :tip="article.date" 
-                        :mask="innerSelectedArticles.some(item => item.id === article.id)" 
+                        :image="article[0].image" 
+                        :title="article[0].title" 
+                        :tip="article[0].date" 
+                        :mask="innerSelectedArticles.some(item => item[0].id === article[0].id)" 
                         :hasRadius="false"
                         @click.native="clickCard(article)">
                     </x-card>
@@ -87,7 +87,8 @@ export default {
             innerSelectedArticles: [],
             total: 0,
             page: 1,
-            filters: { title: '' }
+            filters: { title: '' },
+            loading: false
         }
     },
     computed: {
@@ -101,8 +102,10 @@ export default {
     },
     methods: {
         fetchData() {
-            return API.loading()
-                .invoke(
+            this.loading = true
+            return API.finally(() => {
+                    this.loading = false
+                }).invoke(
                     this.innerAPI[0],
                     Object.assign(
                         {
@@ -162,7 +165,7 @@ export default {
         },
         indexOf(arr, item) {
             for (let i = 0; i < arr.length; i++) {
-                if (arr[i].id === item.id) {
+                if (arr[i][0].id === item[0].id) {
                     return i
                 }
             }

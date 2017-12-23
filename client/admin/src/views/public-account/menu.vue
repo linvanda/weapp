@@ -67,7 +67,7 @@
                                         <span slot="label">
                                             <i class="el-icon-document"></i> 图文</span>
                                         <operations v-show="!activeItem.article" :items="opArticleItems" @click="clickOpArticle"></operations>
-                                        <article-card v-if="activeItem.article" :main="activeItem.article" :sub="activeItem.article.sub">
+                                        <article-card v-if="activeItem.article" :article="activeItem.article">
                                             <div slot="bottom-ops" class="bottom-ops">
                                                 <el-button type="text" @click="removeArticle">删除</el-button>
                                             </div>
@@ -151,31 +151,34 @@ export default {
                             name: '服务预约',
                             type: 'message',
                             messageType: 'article',
-                            article: {
-                                id: '1234',
-                                image: 
-                                    'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1513616139261&di=3081f45f67bf0b823a25479fc973038a&imgtype=0&src=http%3A%2F%2Fwww.zhlzw.com%2FUploadFiles%2FArticle_UploadFiles%2F201204%2F20120412123926750.jpg',
-                                title:
-                                    '测试图文测试图文测试图文测试图文测试图文测试图文测试图文测试图文测试图文测试图文测试图文',
-                                sub: [
-                                    {
-                                        image:
-                                            'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1513616139261&di=3081f45f67bf0b823a25479fc973038a&imgtype=0&src=http%3A%2F%2Fwww.zhlzw.com%2FUploadFiles%2FArticle_UploadFiles%2F201204%2F20120412123926750.jpg',
-                                        title:
-                                            '测试子图文1测试子图文1测试子图文1测试子图文1测试子图文1测试子图文1测试子图文1测试子图文1测试子图文1测试子图文1测试子图文1测试子图文1'
-                                    },
-                                    {
-                                        image:
-                                            'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1513616139261&di=3081f45f67bf0b823a25479fc973038a&imgtype=0&src=http%3A%2F%2Fwww.zhlzw.com%2FUploadFiles%2FArticle_UploadFiles%2F201204%2F20120412123926750.jpg',
-                                        title: '测试子图文2'
-                                    },
-                                    {
-                                        image:
-                                            'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1513616139261&di=3081f45f67bf0b823a25479fc973038a&imgtype=0&src=http%3A%2F%2Fwww.zhlzw.com%2FUploadFiles%2FArticle_UploadFiles%2F201204%2F20120412123926750.jpg',
-                                        title: '测试子图文3'
-                                    }
-                                ]
-                            }
+                            article: [
+                                {
+                                    id: '1234',
+                                    image: 
+                                        'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1513616139261&di=3081f45f67bf0b823a25479fc973038a&imgtype=0&src=http%3A%2F%2Fwww.zhlzw.com%2FUploadFiles%2FArticle_UploadFiles%2F201204%2F20120412123926750.jpg',
+                                    title:
+                                        '测试图文测试图文测试图文测试图文测试图文测试图文测试图文测试图文测试图文测试图文测试图文'
+                                },
+                                {
+                                    id: '2342',
+                                    image:
+                                        'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1513616139261&di=3081f45f67bf0b823a25479fc973038a&imgtype=0&src=http%3A%2F%2Fwww.zhlzw.com%2FUploadFiles%2FArticle_UploadFiles%2F201204%2F20120412123926750.jpg',
+                                    title:
+                                        '测试子图文1测试子图文1测试子图文1测试子图文1测试子图文1测试子图文1测试子图文1测试子图文1测试子图文1测试子图文1测试子图文1测试子图文1'
+                                },
+                                {
+                                    id: '4422',
+                                    image:
+                                        'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1513616139261&di=3081f45f67bf0b823a25479fc973038a&imgtype=0&src=http%3A%2F%2Fwww.zhlzw.com%2FUploadFiles%2FArticle_UploadFiles%2F201204%2F20120412123926750.jpg',
+                                    title: '测试子图文2'
+                                },
+                                {
+                                    id: '4211',
+                                    image:
+                                        'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1513616139261&di=3081f45f67bf0b823a25479fc973038a&imgtype=0&src=http%3A%2F%2Fwww.zhlzw.com%2FUploadFiles%2FArticle_UploadFiles%2F201204%2F20120412123926750.jpg',
+                                    title: '测试子图文3'
+                                }
+                            ]
                         },
                         {
                             name: '历史上点今天等等',
