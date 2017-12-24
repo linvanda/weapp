@@ -43,6 +43,7 @@
                         <p slot="label">摘要<span class="title-tip">（选填，该摘要只在图文消息为单条图文时才显示）</span></p>
                         <el-input type="textarea" :rows="5" v-model="activeItem.summary"></el-input>
                     </el-form-item>
+                    <el-form-item></el-form-item>
                     <quill-editor 
                         v-model="activeItem.content"
                         ref="richText"
@@ -154,6 +155,16 @@ export default {
         if (this.id) {
             this.getArticleInfo(this.id)
         }
+    },
+    mounted() {
+        // TODO: 自定义插入图片
+        const quill = this.$refs.richText.quill
+        quill.getModule('toolbar').addHandler('image', (state) => {
+            if (state) {
+                const position = quill.getSelection()
+                quill.insertEmbed(position.index, 'image', 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1513616139261&di=3081f45f67bf0b823a25479fc973038a&imgtype=0&src=http%3A%2F%2Fwww.zhlzw.com%2FUploadFiles%2FArticle_UploadFiles%2F201204%2F20120412123926750.jpg');
+            }
+        })
     }
 }
 </script>
