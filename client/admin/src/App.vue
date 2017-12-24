@@ -35,7 +35,7 @@ table {
 fieldset,img { 
     border: 0; 
 } 
-address,caption,cite,code,dfn,em,strong,th,var { 
+address,caption,cite,code,dfn,th,var { 
     font-weight: normal; 
     font-style: normal; 
 } 
@@ -54,6 +54,13 @@ q:before,q:after {
 } 
 abbr,acronym { 
     border: 0; 
+}
+
+.quill-editor {
+    background-color: white;
+    .ql-editor {
+        min-height: 500px;
+    }
 }
 
 .el-input {

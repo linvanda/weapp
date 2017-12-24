@@ -10,11 +10,14 @@
                     @click="clickArticleItem"></article-card>
                     <div class="bottom-ops">
                         <el-button @click="sortable = !sortable" plain icon="el-icon-sort">{{ sortable ? '完成排序' : '图文排序' }}</el-button>
-                        <el-button type="primary" plain @click="addArticle" icon="el-icon-plus">添加子图文</el-button>
+                        <el-button v-show="article.length < 5" type="primary" plain @click="addArticle" icon="el-icon-plus">添加子图文</el-button>
                     </div>
             </el-col>
             <el-col :span="formWidth" class="right">
                 <el-form class="content short-form" v-model="activeItem" label-position="top">
+                    <el-form-item>
+                        <div class="delete"><el-button type="text" @click="deleteArticle">删除子图文</el-button></div>
+                    </el-form-item>
                     <el-form-item label="标题">
                         <el-input v-model="activeItem.title"></el-input>
                     </el-form-item>
@@ -40,9 +43,11 @@
                         <p slot="label">摘要<span class="title-tip">（选填，该摘要只在图文消息为单条图文时才显示）</span></p>
                         <el-input type="textarea" :rows="5" v-model="activeItem.summary"></el-input>
                     </el-form-item>
-                    <el-form-item label="正文">
-
-                    </el-form-item>
+                    <quill-editor 
+                        v-model="activeItem.content"
+                        ref="richText"
+                        :options="editorOptions">
+                    </quill-editor>
                 </el-form>
                 <image-choose :visible.sync="chooseImageVisible" return-type="string" :selected-images.sync="activeItem.image"></image-choose>
             </el-col>
@@ -55,17 +60,22 @@
 </template>
 
 <script>
+import _ from 'lodash'
 import API from '@/api'
 import ArticleCard from '@/components/ArticleCard'
 import ImageChoose from '@/components/ImageChoose'
 import CropImage from '@/components/CropImage'
-import _ from 'lodash'
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
+import { quillEditor } from 'vue-quill-editor'
 
 export default {
     components: {
         ArticleCard,
         ImageChoose,
-        CropImage
+        CropImage,
+        quillEditor
     },
     props: {
         id: {
@@ -88,7 +98,14 @@ export default {
 
             },
             formWidth: 18,
-            chooseImageVisible: false
+            chooseImageVisible: false,
+            editorOptions: {
+                theme: 'snow',
+                placeholder: '文章正文，不超过 3000 汉字',
+                modules: {
+                    toolbar: global.$conf.commonRichTextToolbar
+                }
+            }
         }
     },
     computed: {
@@ -119,6 +136,18 @@ export default {
         },
         cropSuccess(result) {
             this.activeItem.image = result.data[0].src
+        },
+        deleteArticle() {
+            if (this.article.length <= 1) {
+                this.$message.warning('至少保留一条图文')
+            } else {
+                this.$confirm(`确定删除 ${this.activeItem.title} 吗？`)
+                .then(() => {
+                    this.article.splice(this.activeIndex, 1)
+                    this.activeIndex = 0
+                })
+                .catch(() => {})
+            }
         }
     },
     created() {
@@ -169,6 +198,10 @@ export default {
         }
         .title-tip {
             color: $font-placeholder;
+        }
+        .delete {
+            width: 60%;
+            text-align: right;
         }
     }
 }

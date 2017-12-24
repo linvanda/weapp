@@ -39,7 +39,19 @@ const config = {
     // 超级管理员角色名
     superRole: 'admin',
     // 编辑页表单默认宽度
-    formWidth: 14
+    formWidth: 14,
+    // 通用 quill toolbar 配置
+    commonRichTextToolbar: [
+        ['bold', 'italic', 'underline', 'strike'],
+        ['blockquote'],
+        [{ 'header': [1, 2, 3, false] }],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        [{ 'align': [] }],
+        [{ 'script': 'sub'}, { 'script': 'super' }],
+        [{ 'indent': '-1'}, { 'indent': '+1' }], 
+        [{ 'color': [] }],
+        ['link', 'image', 'video']
+    ]
 }
 
 Vue.prototype.$conf = config
