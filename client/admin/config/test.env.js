@@ -4,7 +4,7 @@ const devEnv = require('./dev.env')
 
 module.exports = merge(devEnv, {
   NODE_ENV: '"testing"',
-  BASE_URL: '"http://localhost:8080"',
-  API_URL: '"http://www.linvanda.com:8088"',
-  UPLOAD_URL: '"http://localhost:8080/admin/media/images"'
+  BASE_URL: '"http://dev.admin.linvanda.com"',
+  API_URL: '"http://dev.api.linvanda.com"',
+  UPLOAD_URL: '"http://dev.api.linvanda.com/admin/media/images"'
 })

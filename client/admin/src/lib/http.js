@@ -1,5 +1,6 @@
 import axios from 'axios'
-if (process.env.NODE_ENV === 'development') {
+// 后端 api 开发完成后生产环境需要关掉 mock
+if (process.env.NODE_ENV === 'development' || true) {
     require('@/mock')
 }
 
