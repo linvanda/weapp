@@ -227,5 +227,25 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
 
     ],
-
+    'wechat' => [
+        'debug' => env('WECHAT_DEBUG'),
+        'app_id' => env('WECHAT_APPID'),
+        'secret' => env('WECHAT_SECRET'),
+        'aes_key' => env('WECHAT_AES_KEY'),
+        'token' => env('WECHAT_TOKEN'),
+        'mch_id' => env('WECHAT_MCH_ID'),
+        'key' => env('WECHAT_MCH_API_KEY'),
+        'cert_path' => resource_path(env('WECHAT_MCH_CERT_PATH')),
+        'key_path' => resource_path(env('WECHAT_MCH_KEY_PATH')),
+        'notify_url' => url('/pay_callback'),
+        'response_type' => 'array',
+        'oauth' => [
+            'scopes'   => ['snsapi_userinfo'],
+            'callback' => url('/oauth_callback'),
+        ],
+        'log' => [
+            'level' => 'debug',
+            'file' => storage_path('logs/wechat.log'),
+        ],
+    ]
 ];
