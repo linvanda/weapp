@@ -1,4 +1,4 @@
-### 前后台开发模板
+### 前后台开发模板（目前仅实现了 client/admin 的部分代码）
 - client: 前端，分为 前台 和 后台 两个独立的 Vue 项目。
     - app: 用户前台
     - admin: 管理后台
@@ -11,7 +11,7 @@
   + build : webpack 构建相关配置
   + config : 项目配置参数
   + dist : 构建后的文件
-  + node_modules : 外部模块
+  + node_modules : 外部模块
   + src : 源文件代码
     + api : 和 server 端的 api 通信
     + assets : 需要 webpack 处理点静态资源，如图片等
@@ -22,7 +22,7 @@
     + mocks : 模拟数据
     + router : 路由
     + stores : 仓储
-    + styles : 公共样式文件（如scss）
+    + styles : 公共样式文件（如scss）
     + lib : 库
     + App.vue
     + main.js
