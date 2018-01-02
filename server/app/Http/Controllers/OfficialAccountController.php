@@ -107,6 +107,11 @@ class OfficialAccountController extends WechatBaseController
             ],
             [
                 "type" => "view",
+                "name" => "普通页面",
+                "url"  => "http://app-server.qobala.com/page"
+            ],
+            [
+                "type" => "view",
                 "name" => "jssdk",
                 "url"  => "http://app-server.qobala.com/jssdk"
             ],
@@ -191,5 +196,10 @@ class OfficialAccountController extends WechatBaseController
             $reqInfo = $this->reqInfo();
             return true;
         });
+    }
+
+    public function page()
+    {
+        return view('wechat.page');
     }
 }

@@ -23,6 +23,7 @@ Route::get('/jssdk', 'OfficialAccountController@jssdk');
 Route::get('/oauth_callback', 'OfficialAccountController@oauthCallback');
 Route::get('/qrcode', 'OfficialAccountController@qrcode')->name('qrcode');
 Route::get('/card_pay', 'OfficialAccountController@cardPay');
+Route::get('/page', 'OfficialAccountController@page');
 Route::get('/pay', 'OfficialAccountController@pay')->name('pay');
 Route::post('/wechat', 'OfficialAccountController@handler');
 Route::post('/broadcasting', 'OfficialAccountController@broadcasting');
